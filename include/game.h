@@ -17,7 +17,7 @@ public:
 private:
     void handleEvents(float dt);
 
-    void update(uint dt);
+    void update(float dt);
 
     void render();
 

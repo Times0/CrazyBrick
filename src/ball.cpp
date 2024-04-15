@@ -1,9 +1,9 @@
-#include "ball.h"
 #include "../include/ball.h"
-
 
 ball::ball(int x, int y) {
     position = {x, y};
+    posx = (float) x;
+    posy = (float) y;
     size = 10;
     speed = 200;
     velocity = {1, 1};
@@ -11,8 +11,9 @@ ball::ball(int x, int y) {
 
 void ball::Update(float dt) {
     // Update the position of the ball based on its velocity
-    position.x += velocity.x * dt * speed;
-    position.y += velocity.y * dt * speed;
+    posx += (float) velocity.x * dt * (float) speed;
+    posy += (float) velocity.y * dt * (float) speed;
+    position = {(int) posx, (int) posy};
 }
 
 void ball::Draw(SDL_Renderer *renderer) {

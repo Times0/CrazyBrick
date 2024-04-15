@@ -15,10 +15,12 @@ public:
     SDL_Point GetPosition() const;
 
 private:
-    SDL_Point position;
-    SDL_Point velocity;
+    SDL_Point position{};
+    float posx;
+    float posy;
+    SDL_Point velocity{};
     uint speed;
-    uint size;
+    int size;
 };
 
 #endif

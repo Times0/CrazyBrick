@@ -1,4 +1,4 @@
-#include "game.h"
+#include "../include/game.h"
 
 
 game::game(int width, int height) {
@@ -11,7 +11,7 @@ game::game(int width, int height) {
     paddle.y = height - paddle.h - 10;
 
     // add one ball
-    balls.push_back(ball(300, 300));
+    balls.emplace_back(300, 300);
 
 }
 
@@ -58,8 +58,8 @@ void game::handleEvents(float dt) {
     }
 }
 
-void game::update(uint dt) {
-    for (auto &ball:balls){
+void game::update(float dt) {
+    for (auto &ball: balls) {
         ball.Update(dt);
     }
 }
