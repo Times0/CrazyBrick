@@ -3,13 +3,14 @@
 
 #include <SDL2/SDL.h>
 #include <vector>
+#include "ball.h"
 
 
-class Game {
+class game {
 public:
-    Game(int width, int height);
+    game(int width, int height);
 
-    ~Game();
+    ~game();
 
     void run();
 
@@ -26,14 +27,13 @@ private:
     SDL_Window *window;
     SDL_Renderer *renderer;
 
-
-    static const uint PADDLE_WIDTH = 100;
-    static const uint PADDLE_HEIGHT = 20;
-
-    const uint32_t FPS = 60;
-    int paddleX, paddleY;
-    uint paddleSpeed = 550;
+    const uint32_t FPS = 144;
+    SDL_Rect paddle = {0, 0, 100, 20};
+    uint paddleSpeed = 500;
     bool running = true;
+
+    // list of balls
+    std::vector<ball> balls;
 
 };
 

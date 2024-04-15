@@ -1,27 +1,32 @@
-#include "Game.h"
+#include "game.h"
 
-Game::Game(int width, int height) {
+
+game::game(int width, int height) {
     SDL_Init(SDL_INIT_VIDEO);
     window = SDL_CreateWindow("Brick Breaker", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height,
                               SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    paddleX = (width / 2) - (PADDLE_WIDTH / 2);
-    paddleY = height - PADDLE_HEIGHT - 10;
+    paddle.x = width / 2 - paddle.w / 2;
+    paddle.y = height - paddle.h - 10;
+
+    // add one ball
+    balls.push_back(ball(300, 300));
 
 }
 
-Game::~Game() {
+game::~game() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
-void Game::run() {
-    const uint32_t FRAME_TIME = 1000 / FPS; // Time for one frame in milliseconds
+void game::run() {
+    const uint32_t FRAME_TIME = 1000 / FPS;
     uint32_t lastFrameTime = 0;
 
     while (running) {
+        // Slow down the loop to the desired frame rate
         Uint32 frameNow = SDL_GetTicks();
         Uint32 timeSinceLastFrame = frameNow - lastFrameTime;
         lastFrameTime = frameNow;
@@ -30,44 +35,49 @@ void Game::run() {
             SDL_Delay(FRAME_TIME - timeSinceLastFrame);
         }
         handleEvents(dt);
+        update(dt);
         render();
     }
 }
 
-void Game::handleEvents(float dt) {
+void game::handleEvents(float dt) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             running = false;
         } else if (event.type == SDL_MOUSEMOTION) {
-            paddleX = event.motion.x - (PADDLE_WIDTH / 2);
+            paddle.x = event.motion.x - (paddle.w / 2);
         }
     }
     const Uint8 *keyboardStates = SDL_GetKeyboardState(nullptr);
     if (keyboardStates[SDL_SCANCODE_LEFT]) {
-        paddleX -= (int) ((float) paddleSpeed * dt);
+        paddle.x -= (int) ((float) paddleSpeed * dt);
     }
     if (keyboardStates[SDL_SCANCODE_RIGHT]) {
-        paddleX += (int) ((float) paddleSpeed * dt);
+        paddle.x += (int) ((float) paddleSpeed * dt);
     }
 }
 
-void Game::update(uint dt) {
-
+void game::update(uint dt) {
+    for (auto &ball:balls){
+        ball.Update(dt);
+    }
 }
 
-void Game::render() {
+void game::render() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     drawPaddle();
+    for (auto &ball: balls) {
+        ball.Draw(renderer);
+    }
 
     SDL_RenderPresent(renderer);
 }
 
-void Game::drawPaddle() {
+void game::drawPaddle() {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_Rect paddleRect = {paddleX, paddleY, PADDLE_WIDTH, PADDLE_HEIGHT};
-    SDL_RenderFillRect(renderer, &paddleRect);
+    SDL_RenderFillRect(renderer, &paddle);
 }
 

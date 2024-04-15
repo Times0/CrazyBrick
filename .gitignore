@@ -1,10 +1,13 @@
 # Created by https://www.toptal.com/developers/gitignore/api/c++,clion,cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,clion,cmake
 
+.idea
+
 ### C++ ###
 # Prerequisites
 *.d
 bin
+build
 cmake-build-debug
 cmake-build-release
 # Compiled Object files
