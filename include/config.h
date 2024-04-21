@@ -1,0 +1,16 @@
+#ifndef GAME_CONSTANTS_H
+#define GAME_CONSTANTS_H
+
+#define GAME_WIDTH 800
+#define GAME_HEIGHT 600
+
+#define BALL_SIZE 10
+#define BALL_SPEED 200
+
+#define PADDLE_WIDTH 200
+#define PADDLE_HEIGHT 20
+#define PADDLE_SPEED 500
+
+#define FPS 144
+
+#endif // GAME_CONSTANTS_H

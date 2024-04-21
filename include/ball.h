@@ -4,23 +4,30 @@
 #include <string>
 #include <SDL2/SDL.h>
 
-class ball {
+class ball
+{
 public:
-    ball(int x, int y);
+    ball(float x, float y, float vx, float vy);
 
-    void Update(float dt);
+    void update(float dt);
 
-    void Draw(SDL_Renderer *renderer);
+    void Draw(SDL_Renderer *renderer) const;
 
-    SDL_Point GetPosition() const;
+    // getters
+    SDL_FPoint GetPosition() { return position; }
+    SDL_FPoint GetVelocity() { return velocity; }
+    uint GetSize() const { return size; }
+
+    // setters
+    void SetPosition(SDL_FPoint pos) { position = pos; }
+    void SetVelocity(SDL_FPoint vel) { velocity = vel; }
+    void SetSize(int s) { size = s; }
 
 private:
-    SDL_Point position{};
-    float posx;
-    float posy;
-    SDL_Point velocity{};
+    SDL_FPoint position{};
+    SDL_FPoint velocity{};
     uint speed;
-    int size;
+    uint size;
 };
 
 #endif

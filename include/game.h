@@ -4,11 +4,12 @@
 #include <SDL2/SDL.h>
 #include <vector>
 #include "ball.h"
+#include "config.h"
 
 
 class game {
 public:
-    game(int width, int height);
+    game();
 
     ~game();
 
@@ -27,9 +28,8 @@ private:
     SDL_Window *window;
     SDL_Renderer *renderer;
 
-    const uint32_t FPS = 144;
-    SDL_Rect paddle = {0, 0, 100, 20};
-    uint paddleSpeed = 500;
+    SDL_Rect paddle = {0, 0, PADDLE_WIDTH, PADDLE_HEIGHT};
+    uint paddleSpeed = PADDLE_SPEED;
     bool running = true;
 
     // list of balls

@@ -1,8 +1,7 @@
 #include "../include/game.h"
 
-
 int main(int argc, char* argv[]) {
-    game app(800, 600);
+    game app;
     app.run();
     return 0;
 }

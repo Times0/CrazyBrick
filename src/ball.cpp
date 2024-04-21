@@ -1,30 +1,23 @@
 #include "../include/ball.h"
+#include "../include/config.h"
 
-ball::ball(int x, int y) {
+ball::ball(float x, float y, float vx, float vy)
+{
     position = {x, y};
-    posx = (float) x;
-    posy = (float) y;
-    size = 10;
-    speed = 200;
-    velocity = {1, 1};
+    velocity = {vx, vy};
+    speed = BALL_SPEED;
+    size = BALL_SIZE;
 }
 
-void ball::Update(float dt) {
-    // Update the position of the ball based on its velocity
-    posx += (float) velocity.x * dt * (float) speed;
-    posy += (float) velocity.y * dt * (float) speed;
-    position = {(int) posx, (int) posy};
+void ball::update(float dt)
+{
+    position = {position.x + velocity.x * static_cast<float>(speed) * dt, position.y + velocity.y * static_cast<float>(speed) * dt};
 }
 
-void ball::Draw(SDL_Renderer *renderer) {
-    // Set the color to draw with
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White color
-
-    // Draw the ball
-    SDL_Rect ballRect = {position.x, position.y, size, size};
+void ball::Draw(SDL_Renderer *renderer) const
+{
+    // Draw white ball
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_Rect ballRect = {static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(size), static_cast<int>(size)};
     SDL_RenderFillRect(renderer, &ballRect);
-}
-
-SDL_Point ball::GetPosition() const {
-    return position;
 }
