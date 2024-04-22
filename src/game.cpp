@@ -9,9 +9,6 @@ game::game()
                               SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    paddle.x = GAME_WIDTH / 2 - paddle.w / 2;
-    paddle.y = GAME_HEIGHT - paddle.h - 10;
-
     // add the starting ball
     balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.5f, -1.0f);
 }
@@ -72,8 +69,21 @@ void game::handleEvents(float dt)
     if (keyboardStates[SDL_SCANCODE_LEFT] || keyboardStates[SDL_SCANCODE_RIGHT])
     {
         rotation_angle = fmod(rotation_angle, 2 * M_PI);
-        paddle.x = cos(rotation_angle) * CIRCLE_RADIUS + rotation_center.x - PADDLE_WIDTH / 2;
-        paddle.y = sin(rotation_angle) * CIRCLE_RADIUS + rotation_center.y - PADDLE_HEIGHT / 2;
+
+        const float offset_x = PADDLE_WIDTH / 2 * cos(M_PI / 2 - rotation_angle);
+        const float offset_y = PADDLE_WIDTH / 2 * sin(M_PI / 2 - rotation_angle);
+
+        paddle.topleft.x = cos(rotation_angle) * CIRCLE_RADIUS + rotation_center.x - offset_x;
+        paddle.topleft.y = sin(rotation_angle) * CIRCLE_RADIUS + rotation_center.y + offset_y;
+
+        paddle.topright.x = cos(rotation_angle) * CIRCLE_RADIUS + rotation_center.x + offset_x;
+        paddle.topright.y = sin(rotation_angle) * CIRCLE_RADIUS + rotation_center.y - offset_y;
+
+        paddle.bottomleft.x = cos(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + rotation_center.x - offset_x;
+        paddle.bottomleft.y = sin(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + rotation_center.y + offset_y;
+
+        paddle.bottomright.x = cos(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + rotation_center.x + offset_x;
+        paddle.bottomright.y = sin(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + rotation_center.y - offset_y;
     }
 }
 
@@ -104,21 +114,21 @@ void game::update(float dt)
         }
     }
 
-    // Check for collisions with paddle
-    for (auto &ball : balls)
-    {
-        if (ball.GetPosition().y + ball.GetSize() > paddle.y && ball.GetPosition().y < paddle.y + paddle.h &&
-            ball.GetPosition().x + ball.GetSize() > paddle.x && ball.GetPosition().x < paddle.x + paddle.w)
-        {
-            ball.SetPosition({ball.GetPosition().x, static_cast<float>(paddle.y - ball.GetSize())});
+    // // Check for collisions with paddle
+    // for (auto &ball : balls)
+    // {
+    //     if (ball.GetPosition().y + ball.GetSize() > paddle.y && ball.GetPosition().y < paddle.y + paddle.h &&
+    //         ball.GetPosition().x + ball.GetSize() > paddle.x && ball.GetPosition().x < paddle.x + paddle.w)
+    //     {
+    //         ball.SetPosition({ball.GetPosition().x, static_cast<float>(paddle.y - ball.GetSize())});
 
-            // Calculate the new velocity
-            float relativeIntersectX = paddle.x + (paddle.w / 2) - ball.GetPosition().x; // distance from the center of the paddle
-            float normalizedRelativeIntersectionX = relativeIntersectX / (paddle.w / 2); // normalize to [-1, 1]
-            float bounceAngle = normalizedRelativeIntersectionX * (float)M_PI / 3;       // bounce angle in radians
-            ball.SetVelocity({-sin(bounceAngle), -cos(bounceAngle)});
-        }
-    }
+    //         // Calculate the new velocity
+    //         float relativeIntersectX = paddle.x + (paddle.w / 2) - ball.GetPosition().x; // distance from the center of the paddle
+    //         float normalizedRelativeIntersectionX = relativeIntersectX / (paddle.w / 2); // normalize to [-1, 1]
+    //         float bounceAngle = normalizedRelativeIntersectionX * (float)M_PI / 3;       // bounce angle in radians
+    //         ball.SetVelocity({-sin(bounceAngle), -cos(bounceAngle)});
+    //     }
+    // }
 }
 
 void game::render()
@@ -139,7 +149,6 @@ void game::render()
         SDL_RenderDrawPoint(renderer, static_cast<int>(cos(i * M_PI / 180) * CIRCLE_RADIUS + rotation_center.x),
                             static_cast<int>(sin(i * M_PI / 180) * CIRCLE_RADIUS + rotation_center.y));
     }
-    
 
     SDL_RenderPresent(renderer);
 }
@@ -147,5 +156,13 @@ void game::render()
 void game::drawPaddle()
 {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderFillRect(renderer, &paddle);
+
+    SDL_Point points[] = {
+        {static_cast<int>(paddle.topleft.x), static_cast<int>(paddle.topleft.y)},
+        {static_cast<int>(paddle.topright.x), static_cast<int>(paddle.topright.y)},
+        {static_cast<int>(paddle.bottomright.x), static_cast<int>(paddle.bottomright.y)},
+        {static_cast<int>(paddle.bottomleft.x), static_cast<int>(paddle.bottomleft.y)},
+        {static_cast<int>(paddle.topleft.x), static_cast<int>(paddle.topleft.y)}};
+
+    SDL_RenderDrawLines(renderer, points, 5);
 }

@@ -1,17 +1,17 @@
 #ifndef GAME_CONSTANTS_H
 #define GAME_CONSTANTS_H
 
-#define GAME_WIDTH 800
-#define GAME_HEIGHT 600
+#define GAME_WIDTH 1000
+#define GAME_HEIGHT 800
 
 #define BALL_SIZE 10
 #define BALL_SPEED 500
 
-#define PADDLE_WIDTH 100
+#define PADDLE_WIDTH 200
 #define PADDLE_HEIGHT 20
 #define PADDLE_SPEED 50
 
-#define CIRCLE_RADIUS 280
+#define CIRCLE_RADIUS 300
 
 #define FPS 144
 
