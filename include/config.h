@@ -5,11 +5,13 @@
 #define GAME_HEIGHT 600
 
 #define BALL_SIZE 10
-#define BALL_SPEED 200
+#define BALL_SPEED 500
 
-#define PADDLE_WIDTH 200
+#define PADDLE_WIDTH 100
 #define PADDLE_HEIGHT 20
-#define PADDLE_SPEED 500
+#define PADDLE_SPEED 50
+
+#define CIRCLE_RADIUS 280
 
 #define FPS 144
 

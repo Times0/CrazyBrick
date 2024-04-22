@@ -9,6 +9,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
 set(SDL2_PATH "C:/SDL2-2.30.2/x86_64-w64-mingw32")
 find_package(SDL2 REQUIRED)
 
+# Find SDL GFX
+find_package(SDL2_gfx REQUIRED)
+
 # Set the include directories
 include_directories(${SDL2_INCLUDE_DIR})
 

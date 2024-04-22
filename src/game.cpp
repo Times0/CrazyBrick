@@ -1,5 +1,6 @@
 #include "../include/game.h"
 #include "../include/config.h"
+#include <math.h>
 
 game::game()
 {
@@ -53,19 +54,26 @@ void game::handleEvents(float dt)
         {
             running = false;
         }
-        else if (event.type == SDL_MOUSEMOTION)
-        {
-            paddle.x = event.motion.x - (paddle.w / 2);
-        }
+        // else if (event.type == SDL_MOUSEMOTION)
+        // {
+        //     paddle.x = event.motion.x - (paddle.w / 2);
+        // }
     }
     const Uint8 *keyboardStates = SDL_GetKeyboardState(nullptr);
+
     if (keyboardStates[SDL_SCANCODE_LEFT])
     {
-        paddle.x -= (int)((float)paddleSpeed * dt);
+        rotation_angle += 0.1f * dt * paddleSpeed;
     }
     if (keyboardStates[SDL_SCANCODE_RIGHT])
     {
-        paddle.x += (int)((float)paddleSpeed * dt);
+        rotation_angle -= 0.1f * dt * paddleSpeed;
+    }
+    if (keyboardStates[SDL_SCANCODE_LEFT] || keyboardStates[SDL_SCANCODE_RIGHT])
+    {
+        rotation_angle = fmod(rotation_angle, 2 * M_PI);
+        paddle.x = cos(rotation_angle) * CIRCLE_RADIUS + rotation_center.x - PADDLE_WIDTH / 2;
+        paddle.y = sin(rotation_angle) * CIRCLE_RADIUS + rotation_center.y - PADDLE_HEIGHT / 2;
     }
 }
 
@@ -103,7 +111,12 @@ void game::update(float dt)
             ball.GetPosition().x + ball.GetSize() > paddle.x && ball.GetPosition().x < paddle.x + paddle.w)
         {
             ball.SetPosition({ball.GetPosition().x, static_cast<float>(paddle.y - ball.GetSize())});
-            ball.SetVelocity({ball.GetVelocity().x, -ball.GetVelocity().y});
+
+            // Calculate the new velocity
+            float relativeIntersectX = paddle.x + (paddle.w / 2) - ball.GetPosition().x; // distance from the center of the paddle
+            float normalizedRelativeIntersectionX = relativeIntersectX / (paddle.w / 2); // normalize to [-1, 1]
+            float bounceAngle = normalizedRelativeIntersectionX * (float)M_PI / 3;       // bounce angle in radians
+            ball.SetVelocity({-sin(bounceAngle), -cos(bounceAngle)});
         }
     }
 }
@@ -118,6 +131,15 @@ void game::render()
     {
         ball.Draw(renderer);
     }
+
+    // draw circle
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    for (int i = 0; i < 360; i++)
+    {
+        SDL_RenderDrawPoint(renderer, static_cast<int>(cos(i * M_PI / 180) * CIRCLE_RADIUS + rotation_center.x),
+                            static_cast<int>(sin(i * M_PI / 180) * CIRCLE_RADIUS + rotation_center.y));
+    }
+    
 
     SDL_RenderPresent(renderer);
 }
