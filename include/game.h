@@ -1,7 +1,14 @@
 #ifndef CRAZYBRICK_GAME_H
 #define CRAZYBRICK_GAME_H
 
+#ifdef _WIN32
+
 #include <SDL.h>
+
+#else
+#include <SDL2/SDL.h>
+#endif
+
 #include <vector>
 #include "ball.h"
 #include "config.h"
@@ -29,7 +36,7 @@ private:
     SDL_Renderer *renderer;
 
     SDL_Rect paddle = {0, 0, PADDLE_WIDTH, PADDLE_HEIGHT};
-    uint32_t  paddleSpeed = PADDLE_SPEED;
+    uint32_t paddleSpeed = PADDLE_SPEED;
     bool running = true;
 
     // list of balls
