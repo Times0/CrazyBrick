@@ -2,10 +2,9 @@
 #define CRAZYBRICK_BALL_H
 
 #include <string>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
-class ball
-{
+class ball {
 public:
     ball(float x, float y, float vx, float vy);
 
@@ -15,19 +14,23 @@ public:
 
     // getters
     SDL_FPoint GetPosition() { return position; }
+
     SDL_FPoint GetVelocity() { return velocity; }
-    uint GetSize() const { return size; }
+
+    uint32_t GetSize() const { return size; }
 
     // setters
     void SetPosition(SDL_FPoint pos) { position = pos; }
+
     void SetVelocity(SDL_FPoint vel) { velocity = vel; }
+
     void SetSize(int s) { size = s; }
 
 private:
     SDL_FPoint position{};
     SDL_FPoint velocity{};
-    uint speed;
-    uint size;
+    uint32_t speed;
+    uint32_t size;
 };
 
 #endif
