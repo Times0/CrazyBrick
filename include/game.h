@@ -14,8 +14,7 @@
 #include <math.h>
 #include "config.h"
 
-typedef struct
-{
+typedef struct {
     SDL_FPoint topleft;
     SDL_FPoint topright;
     SDL_FPoint bottomleft;
@@ -23,8 +22,7 @@ typedef struct
 } Paddle;
 
 
-class game
-{
+class game {
 public:
     game();
 
@@ -37,6 +35,8 @@ private:
 
     void update(float dt);
 
+    bool collide_paddle_circle(const Paddle &paddle, ball ball);
+
     void render();
 
     void drawPaddle();
@@ -47,10 +47,10 @@ private:
     SDL_Point rotation_center = {GAME_WIDTH / 2, GAME_HEIGHT / 2};
     float rotation_angle = 0.0f;
     Paddle paddle = {
-        {GAME_WIDTH / 2 - PADDLE_WIDTH / 2, GAME_HEIGHT - PADDLE_HEIGHT},
-        {GAME_WIDTH / 2 + PADDLE_WIDTH / 2, GAME_HEIGHT - PADDLE_HEIGHT},
-        {GAME_WIDTH / 2 - PADDLE_WIDTH / 2, GAME_HEIGHT},
-        {GAME_WIDTH / 2 + PADDLE_WIDTH / 2, GAME_HEIGHT}
+            {0, 0},
+            {0, 0},
+            {0, 0},
+            {0, 0}
     };
 
     uint32_t paddleSpeed = PADDLE_SPEED;

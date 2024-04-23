@@ -17,27 +17,28 @@ public:
 
     void update(float dt);
 
-    void Draw(SDL_Renderer *renderer) const;
+    void draw(SDL_Renderer *renderer) const;
 
     // getters
-    SDL_FPoint GetPosition() { return position; }
+    SDL_FPoint getCenter() { return center; }
 
-    SDL_FPoint GetVelocity() { return velocity; }
+    SDL_FPoint getVelocity() { return velocity; }
 
-    uint32_t GetSize() const { return size; }
+    uint32_t getRadius() const { return radius; }
 
     // setters
-    void SetPosition(SDL_FPoint pos) { position = pos; }
+    void setCenter(SDL_FPoint pos) { center = pos; }
 
-    void SetVelocity(SDL_FPoint vel) { velocity = vel; }
+    void setVelocity(SDL_FPoint vel) { velocity = vel; }
 
-    void SetSize(int s) { size = s; }
+    void setRadius(int s) { radius = s; }
 
 private:
-    SDL_FPoint position{};
-    SDL_FPoint velocity{};
+    SDL_FPoint center{};
+    uint32_t radius;
+
     uint32_t speed;
-    uint32_t size;
+    SDL_FPoint velocity{};
 };
 
 #endif

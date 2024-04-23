@@ -9,7 +9,7 @@
 
 #define PADDLE_WIDTH 200
 #define PADDLE_HEIGHT 20
-#define PADDLE_SPEED 50
+#define PADDLE_SPEED 20
 
 #define CIRCLE_RADIUS 300
 

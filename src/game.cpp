@@ -1,11 +1,74 @@
+
 #include "../include/game.h"
 #include "../include/config.h"
-#include <math.h>
+#include <vector>
+#include <cmath>
+#include <iostream>
 
-game::game()
-{
+double pointLineDistance(const std::pair<double, double> &point, const std::pair<double, double> &line_start,
+                         const std::pair<double, double> &line_end) {
+    double x = point.first;
+    double y = point.second;
+    double x1 = line_start.first;
+    double y1 = line_start.second;
+    double x2 = line_end.first;
+    double y2 = line_end.second;
+
+    double A = x - x1;
+    double B = y - y1;
+    double C = x2 - x1;
+    double D = y2 - y1;
+
+    double dot = A * C + B * D;
+    double len_sq = C * C + D * D;
+    double param = -1;
+    if (len_sq != 0) {
+        param = dot / len_sq;
+    }
+
+    double xx, yy;
+    if (param < 0) {
+        xx = x1;
+        yy = y1;
+    } else if (param > 1) {
+        xx = x2;
+        yy = y2;
+    } else {
+        xx = x1 + param * C;
+        yy = y1 + param * D;
+    }
+
+    double dx = x - xx;
+    double dy = y - yy;
+    return sqrt(dx * dx + dy * dy);
+
+
+}
+
+bool polygonBallCollision(const std::vector<std::pair<float, float>> &polygon_points, std::pair<float, float> ball_pos,
+                          float ball_radius) {
+
+    // Check if the ball intersects with any of the polygon's edges
+    for (size_t i = 0; i < polygon_points.size(); ++i) {
+        size_t j = (i + 1) % polygon_points.size();
+        const std::pair<double, double> &p1 = polygon_points[i];
+        const std::pair<double, double> &p2 = polygon_points[j];
+
+        double distance = pointLineDistance(ball_pos, p1, p2);
+        printf("Distance: %f\n", distance);
+        if (distance <= ball_radius) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+game::game() {
     SDL_Init(SDL_INIT_VIDEO);
-    window = SDL_CreateWindow("Brick Breaker", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, GAME_WIDTH, GAME_HEIGHT,
+    window = SDL_CreateWindow("Brick Breaker", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, GAME_WIDTH,
+                              GAME_HEIGHT,
                               SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
@@ -13,27 +76,23 @@ game::game()
     balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.5f, -1.0f);
 }
 
-game::~game()
-{
+game::~game() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
-void game::run()
-{
+void game::run() {
     const uint32_t FRAME_TIME = 1000 / FPS;
     uint32_t lastFrameTime = 0;
 
-    while (running)
-    {
+    while (running) {
         // Slow down the loop to the desired frame rate
         Uint32 frameNow = SDL_GetTicks();
         Uint32 timeSinceLastFrame = frameNow - lastFrameTime;
         lastFrameTime = frameNow;
-        float dt = (float)timeSinceLastFrame / 1000.0f;
-        if (timeSinceLastFrame < FRAME_TIME)
-        {
+        float dt = (float) timeSinceLastFrame / 1000.0f;
+        if (timeSinceLastFrame < FRAME_TIME) {
             SDL_Delay(FRAME_TIME - timeSinceLastFrame);
         }
         handleEvents(dt);
@@ -42,13 +101,10 @@ void game::run()
     }
 }
 
-void game::handleEvents(float dt)
-{
+void game::handleEvents(float dt) {
     SDL_Event event;
-    while (SDL_PollEvent(&event))
-    {
-        if (event.type == SDL_QUIT)
-        {
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
             running = false;
         }
         // else if (event.type == SDL_MOUSEMOTION)
@@ -58,16 +114,13 @@ void game::handleEvents(float dt)
     }
     const Uint8 *keyboardStates = SDL_GetKeyboardState(nullptr);
 
-    if (keyboardStates[SDL_SCANCODE_LEFT])
-    {
+    if (keyboardStates[SDL_SCANCODE_LEFT]) {
         rotation_angle += 0.1f * dt * paddleSpeed;
     }
-    if (keyboardStates[SDL_SCANCODE_RIGHT])
-    {
+    if (keyboardStates[SDL_SCANCODE_RIGHT]) {
         rotation_angle -= 0.1f * dt * paddleSpeed;
     }
-    if (keyboardStates[SDL_SCANCODE_LEFT] || keyboardStates[SDL_SCANCODE_RIGHT])
-    {
+    if (keyboardStates[SDL_SCANCODE_LEFT] xor keyboardStates[SDL_SCANCODE_RIGHT]) {
         rotation_angle = fmod(rotation_angle, 2 * M_PI);
 
         const float offset_x = PADDLE_WIDTH / 2 * cos(M_PI / 2 - rotation_angle);
@@ -87,65 +140,59 @@ void game::handleEvents(float dt)
     }
 }
 
-void game::update(float dt)
-{
-    for (auto &ball : balls)
-    {
+
+void game::update(float dt) {
+    for (auto &ball: balls) {
         ball.update(dt);
     }
 
     // Check for collisions with borders
-    for (auto &ball : balls)
-    {
-        if (ball.GetPosition().x < 0)
-        {
-            ball.SetPosition({0, ball.GetPosition().y});
-            ball.SetVelocity({-ball.GetVelocity().x, ball.GetVelocity().y});
+    for (auto &ball: balls) {
+        if (ball.getCenter().x - ball.getRadius() < 0) {
+            ball.setCenter({static_cast<float>(ball.getRadius()), ball.getCenter().y});
+            ball.setVelocity({-ball.getVelocity().x, ball.getVelocity().y});
         }
-        if (ball.GetPosition().x + ball.GetSize() > GAME_WIDTH)
-        {
-            ball.SetPosition({static_cast<float>(GAME_WIDTH) - ball.GetSize(), ball.GetPosition().y});
-            ball.SetVelocity({-ball.GetVelocity().x, ball.GetVelocity().y});
+        if (ball.getCenter().x + ball.getRadius() > GAME_WIDTH) {
+            ball.setCenter({static_cast<float>(GAME_WIDTH - ball.getRadius()), ball.getCenter().y});
+            ball.setVelocity({-ball.getVelocity().x, ball.getVelocity().y});
         }
-        if (ball.GetPosition().y < 0)
-        {
-            ball.SetPosition({ball.GetPosition().x, 0});
-            ball.SetVelocity({ball.GetVelocity().x, -ball.GetVelocity().y});
+        if (ball.getCenter().y - ball.getRadius() < 0) {
+            ball.setCenter({ball.getCenter().x, static_cast<float>(ball.getRadius())});
+            ball.setVelocity({ball.getVelocity().x, -ball.getVelocity().y});
+        }
+        if (ball.getCenter().y + ball.getRadius() > GAME_HEIGHT) {
+            ball.setCenter({ball.getCenter().x, static_cast<float>(GAME_HEIGHT - ball.getRadius())});
+            ball.setVelocity({ball.getVelocity().x, -ball.getVelocity().y});
         }
     }
 
-    // // Check for collisions with paddle
-    // for (auto &ball : balls)
-    // {
-    //     if (ball.GetPosition().y + ball.GetSize() > paddle.y && ball.GetPosition().y < paddle.y + paddle.h &&
-    //         ball.GetPosition().x + ball.GetSize() > paddle.x && ball.GetPosition().x < paddle.x + paddle.w)
-    //     {
-    //         ball.SetPosition({ball.GetPosition().x, static_cast<float>(paddle.y - ball.GetSize())});
+    // Check for collisions with paddle
+    for (auto &ball: balls) {
+        // check if there is a collision with the paddle
+        if (polygonBallCollision({{paddle.topleft.x,     paddle.topleft.y},
+                                  {paddle.topright.x,    paddle.topright.y},
+                                  {paddle.bottomright.x, paddle.bottomright.y},
+                                  {paddle.bottomleft.x,  paddle.bottomleft.y}},
+                                 {ball.getCenter().x, ball.getCenter().y}, ball.getRadius())) {
+            printf("Collision detected\n");
+            ball.setVelocity({ball.getVelocity().x, -ball.getVelocity().y});
+        }
+    }
 
-    //         // Calculate the new velocity
-    //         float relativeIntersectX = paddle.x + (paddle.w / 2) - ball.GetPosition().x; // distance from the center of the paddle
-    //         float normalizedRelativeIntersectionX = relativeIntersectX / (paddle.w / 2); // normalize to [-1, 1]
-    //         float bounceAngle = normalizedRelativeIntersectionX * (float)M_PI / 3;       // bounce angle in radians
-    //         ball.SetVelocity({-sin(bounceAngle), -cos(bounceAngle)});
-    //     }
-    // }
 }
 
-void game::render()
-{
+void game::render() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     drawPaddle();
-    for (auto &ball : balls)
-    {
-        ball.Draw(renderer);
+    for (auto &ball: balls) {
+        ball.draw(renderer);
     }
 
     // draw circle
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    for (int i = 0; i < 360; i++)
-    {
+    for (int i = 0; i < 360; i++) {
         SDL_RenderDrawPoint(renderer, static_cast<int>(cos(i * M_PI / 180) * CIRCLE_RADIUS + rotation_center.x),
                             static_cast<int>(sin(i * M_PI / 180) * CIRCLE_RADIUS + rotation_center.y));
     }
@@ -153,16 +200,16 @@ void game::render()
     SDL_RenderPresent(renderer);
 }
 
-void game::drawPaddle()
-{
+void game::drawPaddle() {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
     SDL_Point points[] = {
-        {static_cast<int>(paddle.topleft.x), static_cast<int>(paddle.topleft.y)},
-        {static_cast<int>(paddle.topright.x), static_cast<int>(paddle.topright.y)},
-        {static_cast<int>(paddle.bottomright.x), static_cast<int>(paddle.bottomright.y)},
-        {static_cast<int>(paddle.bottomleft.x), static_cast<int>(paddle.bottomleft.y)},
-        {static_cast<int>(paddle.topleft.x), static_cast<int>(paddle.topleft.y)}};
+            {static_cast<int>(paddle.topleft.x),     static_cast<int>(paddle.topleft.y)},
+            {static_cast<int>(paddle.topright.x),    static_cast<int>(paddle.topright.y)},
+            {static_cast<int>(paddle.bottomright.x), static_cast<int>(paddle.bottomright.y)},
+            {static_cast<int>(paddle.bottomleft.x),  static_cast<int>(paddle.bottomleft.y)},
+            {static_cast<int>(paddle.topleft.x),     static_cast<int>(paddle.topleft.y)}};
 
     SDL_RenderDrawLines(renderer, points, 5);
 }
+
