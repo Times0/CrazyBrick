@@ -24,6 +24,10 @@ public:
 
     SDL_FPoint getVelocity() { return velocity; }
 
+    // get x, get y
+    float getX() const { return center.x; }
+    float getY() const { return center.y; }
+
     uint32_t getRadius() const { return radius; }
 
     // setters

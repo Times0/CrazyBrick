@@ -13,6 +13,6 @@
 
 #define CIRCLE_RADIUS 300
 
-#define FPS 144
+#define FPS 120
 
 #endif // GAME_CONSTANTS_H

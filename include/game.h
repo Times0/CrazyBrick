@@ -19,6 +19,7 @@ typedef struct {
     SDL_FPoint topright;
     SDL_FPoint bottomleft;
     SDL_FPoint bottomright;
+    size_t nb_pts = 4;
 } Paddle;
 
 
@@ -55,6 +56,7 @@ private:
 
     uint32_t paddleSpeed = PADDLE_SPEED;
     bool running = true;
+    bool collision = false;
 
     // list of balls
     std::vector<ball> balls;
