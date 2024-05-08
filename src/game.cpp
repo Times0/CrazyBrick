@@ -1,6 +1,9 @@
 
 #include "../include/game.h"
 #include "../include/config.h"
+#include "../include/types.h"
+#include "../include/brick.h"
+
 #include <vector>
 #include <cmath>
 #include <iostream>
@@ -47,25 +50,39 @@ double pointLineDistance(const std::pair<double, double> &point, const std::pair
 
 }
 
-bool polygonBallCollision(const std::vector<std::pair<float, float>> &polygon_points, std::pair<float, float> ball_pos,
-                          float ball_radius) {
 
-    // Check if the ball intersects with any of the polygon's edges
-    for (size_t i = 0; i < polygon_points.size(); ++i) {
-        size_t j = (i + 1) % polygon_points.size();
-        const std::pair<double, double> &p1 = polygon_points[i];
-        const std::pair<double, double> &p2 = polygon_points[j];
+const int CENTER_X = GAME_WIDTH / 2;
+const int CENTER_Y = GAME_HEIGHT / 2;
 
-        double distance = pointLineDistance(ball_pos, p1, p2);
-        printf("Distance: %f\n", distance);
-        if (distance <= ball_radius) {
-            return true;
+struct Vector2 {
+    int x, y;
+
+    Vector2(int x, int y) : x(x), y(y) {}
+};
+
+Vector2 getUnitCirclePos(int i, int n, int r) {
+    double angle = 2 * M_PI * i / n;
+    int x = static_cast<int>(std::cos(angle) * r + CENTER_X);
+    int y = static_cast<int>(std::sin(angle) * r + CENTER_Y);
+    return {x, y};
+}
+
+std::vector<std::vector<Vector2>> generateCoords(int n, int h) {
+    std::vector<std::vector<Vector2>> coords;
+
+    for (int r = 50; r < 300; r += h) {
+        for (int i = 0; i < n; ++i) {
+            Vector2 p1 = getUnitCirclePos(i, n, r);
+            Vector2 p2 = getUnitCirclePos((i + 1) % n, n, r);
+            Vector2 p3 = getUnitCirclePos((i + 1) % n, n, r + h);
+            Vector2 p4 = getUnitCirclePos(i, n, r + h);
+
+            coords.push_back({p1, p2, p3, p4});
         }
     }
 
-    return false;
+    return coords;
 }
-
 
 game::game() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -76,6 +93,18 @@ game::game() {
 
     // add the starting ball
     balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.5f, -1.0f);
+
+    // create the bricks
+    std::vector<std::vector<Vector2>> coords = generateCoords(50, 25);
+    bricks.reserve(coords.size());
+    for (auto &points: coords) {
+        Polygon polygon_points;
+        for (auto &point: points) {
+            polygon_points.emplace_back(point.x, point.y);
+        }
+        bricks.emplace_back(polygon_points);
+    }
+
 }
 
 game::~game() {
@@ -99,7 +128,7 @@ void game::run() {
         }
         handleEvents(dt);
         update(dt);
-        render();
+        draw();
     }
 }
 
@@ -143,7 +172,6 @@ void game::handleEvents(float dt) {
         paddle.bottomright.y = sin(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + rotation_center.y - offset_y;
     }
 }
-
 
 void game::update(float dt) {
     for (auto &ball: balls) {
@@ -223,8 +251,7 @@ void game::update(float dt) {
     }
 }
 
-
-void game::render() {
+void game::draw() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
@@ -243,6 +270,12 @@ void game::render() {
         SDL_RenderDrawPoint(renderer, static_cast<int>(cos(i * M_PI / 180) * CIRCLE_RADIUS + rotation_center.x),
                             static_cast<int>(sin(i * M_PI / 180) * CIRCLE_RADIUS + rotation_center.y));
     }
+
+    // draw bricks using their coords
+    for (auto &brick: bricks) {
+        brick.draw(renderer);
+    }
+
 
     SDL_RenderPresent(renderer);
 }

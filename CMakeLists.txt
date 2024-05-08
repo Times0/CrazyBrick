@@ -17,6 +17,12 @@ set(SOURCES
         src/main.cpp
         src/game.cpp
         src/ball.cpp
+        include/level.h
+        src/level.cpp
+        include/brick.h
+        src/brick.cpp
+        include/brick.h
+        include/types.h
 )
 
 # Set the header files

@@ -13,6 +13,7 @@
 #include "ball.h"
 #include <math.h>
 #include "config.h"
+#include "brick.h"
 
 typedef struct {
     SDL_FPoint topleft;
@@ -36,9 +37,7 @@ private:
 
     void update(float dt);
 
-    bool collide_paddle_circle(const Paddle &paddle, ball ball);
-
-    void render();
+    void draw();
 
     void drawPaddle();
 
@@ -60,6 +59,9 @@ private:
 
     // list of balls
     std::vector<ball> balls;
+    // list of bricks
+    std::vector<brick> bricks;
+
 };
 
 #endif // CRAZYBRICK_GAME_H
