@@ -19,13 +19,12 @@
 
 class brick {
 public:
-    brick(Polygon polygon_points);
+    explicit brick(Polygon polygon_points);
 
     ~brick();
 
     void draw(SDL_Renderer *renderer) const;
 
-private:
     Polygon polygon_points;
 };
 

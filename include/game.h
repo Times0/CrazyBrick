@@ -11,18 +11,9 @@
 
 #include <vector>
 #include "ball.h"
-#include <math.h>
+#include <cmath>
 #include "config.h"
 #include "brick.h"
-
-typedef struct {
-    SDL_FPoint topleft;
-    SDL_FPoint topright;
-    SDL_FPoint bottomleft;
-    SDL_FPoint bottomright;
-    size_t nb_pts = 4;
-} Paddle;
-
 
 class game {
 public:
@@ -44,15 +35,11 @@ private:
     SDL_Window *window;
     SDL_Renderer *renderer;
 
-    SDL_Point rotation_center = {GAME_WIDTH / 2, GAME_HEIGHT / 2};
-    float rotation_angle = 0.0f;
-    Paddle paddle = {
-            {0, 0},
-            {0, 0},
-            {0, 0},
-            {0, 0}
-    };
+    float center_x = GAME_WIDTH / 2.;
+    float center_y = GAME_HEIGHT / 2.;
 
+    float rotation_angle = 0.0f;
+    Polygon paddle;
     uint32_t paddleSpeed = PADDLE_SPEED;
     bool running = true;
     bool collision = false;

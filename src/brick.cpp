@@ -14,9 +14,11 @@ brick::~brick() = default;
 void brick::draw(SDL_Renderer *renderer) const {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     for (size_t i = 0; i < polygon_points.size(); i++) {
-        SDL_RenderDrawLineF(renderer, polygon_points[i].first, polygon_points[i].second,
-                           polygon_points[(i + 1) % polygon_points.size()].first,
-                           polygon_points[(i + 1) % polygon_points.size()].second);
+        SDL_RenderDrawLineF(renderer,
+                            polygon_points[i].x,
+                            polygon_points[i].y,
+                            polygon_points[(i + 1) % polygon_points.size()].x,
+                            polygon_points[(i + 1) % polygon_points.size()].y);
     }
 }
 

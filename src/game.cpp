@@ -4,11 +4,11 @@
 #include "../include/types.h"
 #include "../include/brick.h"
 
+#include <cmath>
 #include <vector>
 #include <cmath>
 #include <iostream>
-
-class Vector2f;
+#include <algorithm>
 
 double pointLineDistance(const std::pair<double, double> &point, const std::pair<double, double> &line_start,
                          const std::pair<double, double> &line_end) {
@@ -54,23 +54,18 @@ double pointLineDistance(const std::pair<double, double> &point, const std::pair
 const int CENTER_X = GAME_WIDTH / 2;
 const int CENTER_Y = GAME_HEIGHT / 2;
 
-struct Vector2 {
-    int x, y;
-
-    Vector2(int x, int y) : x(x), y(y) {}
-};
 
 Vector2 getUnitCirclePos(int i, int n, int r) {
     double angle = 2 * M_PI * i / n;
-    int x = static_cast<int>(std::cos(angle) * r + CENTER_X);
-    int y = static_cast<int>(std::sin(angle) * r + CENTER_Y);
+    double x = std::cos(angle) * r + CENTER_X;
+    double y = std::sin(angle) * r + CENTER_Y;
     return {x, y};
 }
 
-std::vector<std::vector<Vector2>> generateCoords(int n, int h) {
-    std::vector<std::vector<Vector2>> coords;
+std::vector<Polygon> generateCoords(int n, int h) {
+    std::vector<Polygon> coords;
 
-    for (int r = 50; r < 300; r += h) {
+    for (int r = 25; r < 300; r += h) {
         for (int i = 0; i < n; ++i) {
             Vector2 p1 = getUnitCirclePos(i, n, r);
             Vector2 p2 = getUnitCirclePos((i + 1) % n, n, r);
@@ -84,6 +79,40 @@ std::vector<std::vector<Vector2>> generateCoords(int n, int h) {
     return coords;
 }
 
+bool handleBallPolygonCollision(const Polygon &polygon_points, ball &ball) {
+    // This function does not work with concave polygons
+
+    for (size_t i = 0; i < polygon_points.size(); ++i) {
+        size_t next_index = (i + 1) % polygon_points.size();
+        const Vector2 &p1 = polygon_points[i];
+        const Vector2 &p2 = polygon_points[next_index];
+
+        float distance = pointLineDistance({ball.getX(), ball.getY()}, {p1.x, p1.y}, {p2.x, p2.y});
+        if (distance < ball.getRadius()) {
+            float dx = p2.x - p1.x;
+            float dy = p2.y - p1.y;
+            float normal_x = -dy;
+            float normal_y = dx;
+
+            float length = std::sqrt(normal_x * normal_x + normal_y * normal_y);
+            normal_x /= length;
+            normal_y /= length;
+
+            // Set the ball's position just outside
+            ball.setCenter({ball.getX() + normal_x * (ball.getRadius() - distance),
+                            ball.getY() + normal_y * (ball.getRadius() - distance)});
+
+            float dot_product = ball.getVelocity().x * normal_x + ball.getVelocity().y * normal_y;
+
+            ball.setVelocity({ball.getVelocity().x - 2 * dot_product * normal_x,
+                              ball.getVelocity().y - 2 * dot_product * normal_y});
+            return true;
+        }
+    }
+    return false;
+}
+
+
 game::game() {
     SDL_Init(SDL_INIT_VIDEO);
     window = SDL_CreateWindow("Brick Breaker", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, GAME_WIDTH,
@@ -91,11 +120,17 @@ game::game() {
                               SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
+    // create the paddle
+    paddle = {{GAME_WIDTH / 2, GAME_HEIGHT / 2 - CIRCLE_RADIUS},
+              {GAME_WIDTH / 2, GAME_HEIGHT / 2 + CIRCLE_RADIUS},
+              {GAME_WIDTH / 2, GAME_HEIGHT / 2 + CIRCLE_RADIUS + PADDLE_HEIGHT},
+              {GAME_WIDTH / 2, GAME_HEIGHT / 2 - CIRCLE_RADIUS + PADDLE_HEIGHT}};
+
     // add the starting ball
     balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.5f, -1.0f);
 
     // create the bricks
-    std::vector<std::vector<Vector2>> coords = generateCoords(50, 25);
+    std::vector<std::vector<Vector2>> coords = generateCoords(20, 50);
     bricks.reserve(coords.size());
     for (auto &points: coords) {
         Polygon polygon_points;
@@ -147,29 +182,31 @@ void game::handleEvents(float dt) {
     const Uint8 *keyboardStates = SDL_GetKeyboardState(nullptr);
 
     if (keyboardStates[SDL_SCANCODE_LEFT]) {
-        rotation_angle += 0.1f * dt * paddleSpeed;
+        rotation_angle += 0.1f * dt * static_cast<float>(paddleSpeed);
     }
     if (keyboardStates[SDL_SCANCODE_RIGHT]) {
-        rotation_angle -= 0.1f * dt * paddleSpeed;
+        rotation_angle -= 0.1f * dt * static_cast<float>(paddleSpeed);
     }
 
     if (keyboardStates[SDL_SCANCODE_LEFT] xor keyboardStates[SDL_SCANCODE_RIGHT]) {
-        rotation_angle = fmod(rotation_angle, 2 * M_PI);
+        rotation_angle = std::fmod(rotation_angle, 2 * M_PI);
 
         const float offset_x = PADDLE_WIDTH / 2 * cos(M_PI / 2 - rotation_angle);
         const float offset_y = PADDLE_WIDTH / 2 * sin(M_PI / 2 - rotation_angle);
 
-        paddle.topleft.x = cos(rotation_angle) * CIRCLE_RADIUS + rotation_center.x - offset_x;
-        paddle.topleft.y = sin(rotation_angle) * CIRCLE_RADIUS + rotation_center.y + offset_y;
+        paddle[3].x = std::cos(rotation_angle) * CIRCLE_RADIUS + center_x - offset_x;
+        paddle[3].y = std::sin(rotation_angle) * CIRCLE_RADIUS + center_y + offset_y;
 
-        paddle.topright.x = cos(rotation_angle) * CIRCLE_RADIUS + rotation_center.x + offset_x;
-        paddle.topright.y = sin(rotation_angle) * CIRCLE_RADIUS + rotation_center.y - offset_y;
+        paddle[2].x = std::cos(rotation_angle) * CIRCLE_RADIUS + center_x + offset_x;
+        paddle[2].y = std::sin(rotation_angle) * CIRCLE_RADIUS + center_y - offset_y;
 
-        paddle.bottomleft.x = cos(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + rotation_center.x - offset_x;
-        paddle.bottomleft.y = sin(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + rotation_center.y + offset_y;
+        paddle[1].x = std::cos(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + center_x + offset_x;
+        paddle[1].y = std::sin(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + center_y - offset_y;
 
-        paddle.bottomright.x = cos(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + rotation_center.x + offset_x;
-        paddle.bottomright.y = sin(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + rotation_center.y - offset_y;
+        paddle[0].x = std::cos(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + center_x - offset_x;
+        paddle[0].y = std::sin(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + center_y + offset_y;
+
+
     }
 }
 
@@ -199,55 +236,18 @@ void game::update(float dt) {
     }
 
     // Check for collisions with paddle
-
-    const std::vector<std::pair<float, float>> polygon_points = {
-            {paddle.topleft.x,     paddle.topleft.y},
-            {paddle.topright.x,    paddle.topright.y},
-            {paddle.bottomright.x, paddle.bottomright.y},
-            {paddle.bottomleft.x,  paddle.bottomleft.y}
-    };
-
     for (auto &ball: balls) {
-        float min_dist = std::numeric_limits<float>::infinity();
-        SDL_Point closest_point_start, closest_point_end;
+        handleBallPolygonCollision(paddle, ball);
+    }
 
-
-        // Iterate over the polygon points
-        for (size_t i = 0; i < polygon_points.size(); ++i) {
-            size_t next_index = (i + 1) % polygon_points.size();
-            const std::pair<float, float> &p1 = polygon_points[i];
-            const std::pair<float, float> &p2 = polygon_points[next_index];
-
-            float distance = pointLineDistance({ball.getX(), ball.getY()}, p1, p2);
-            if (distance < min_dist) {
-                min_dist = distance;
-                closest_point_start = {static_cast<int>(p1.first), static_cast<int>(p1.second)};
-                closest_point_end = {static_cast<int>(p2.first), static_cast<int>(p2.second)};
-            }
-        }
-
-        collision = false;
-        if (min_dist <= ball.getRadius()) {
-            collision = true;
-            float dx = closest_point_end.x - closest_point_start.x;
-            float dy = closest_point_end.y - closest_point_start.y;
-            float normal_x = -dy;
-            float normal_y = dx;
-
-            float length = sqrt(normal_x * normal_x + normal_y * normal_y);
-            normal_x /= length;
-            normal_y /= length;
-
-            // Set the ball's position just outside the paddle
-            ball.setCenter({ball.getX() - normal_x * (ball.getRadius() - min_dist),
-                            ball.getY() - normal_y * (ball.getRadius() - min_dist)});
-
-
-            float dot_product = ball.getVelocity().x * normal_x + ball.getVelocity().y * normal_y;
-
-            ball.setVelocity({ball.getVelocity().x - 2 * dot_product * normal_x,
-                              ball.getVelocity().y - 2 * dot_product * normal_y});
-        }
+// Check for collisions with bricks
+    for (auto &ball: balls) {
+        // Use erase-remove idiom with a lambda predicate
+        bricks.erase(std::remove_if(bricks.begin(), bricks.end(),
+                                    [&ball](const brick &brick) {
+                                        return handleBallPolygonCollision(brick.polygon_points, ball);
+                                    }),
+                     bricks.end());
     }
 }
 
@@ -260,15 +260,12 @@ void game::draw() {
         ball.draw(renderer);
     }
 
-    // draw circle
-    if (collision) {
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    } else {
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    }
+
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+
     for (int i = 0; i < 360; i++) {
-        SDL_RenderDrawPoint(renderer, static_cast<int>(cos(i * M_PI / 180) * CIRCLE_RADIUS + rotation_center.x),
-                            static_cast<int>(sin(i * M_PI / 180) * CIRCLE_RADIUS + rotation_center.y));
+        SDL_RenderDrawPoint(renderer, static_cast<int>(cos(i * M_PI / 180) * CIRCLE_RADIUS + center_x),
+                            static_cast<int>(sin(i * M_PI / 180) * CIRCLE_RADIUS + center_y));
     }
 
     // draw bricks using their coords
@@ -282,14 +279,11 @@ void game::draw() {
 
 void game::drawPaddle() {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-    SDL_Point points[] = {
-            {static_cast<int>(paddle.topleft.x),     static_cast<int>(paddle.topleft.y)},
-            {static_cast<int>(paddle.topright.x),    static_cast<int>(paddle.topright.y)},
-            {static_cast<int>(paddle.bottomright.x), static_cast<int>(paddle.bottomright.y)},
-            {static_cast<int>(paddle.bottomleft.x),  static_cast<int>(paddle.bottomleft.y)},
-            {static_cast<int>(paddle.topleft.x),     static_cast<int>(paddle.topleft.y)}};
-
-    SDL_RenderDrawLines(renderer, points, 5);
+    for (size_t i = 0; i < paddle.size(); i++) {
+        SDL_RenderDrawLineF(renderer,
+                            paddle[i].x,
+                            paddle[i].y,
+                            paddle[(i + 1) % paddle.size()].x,
+                            paddle[(i + 1) % paddle.size()].y);
+    }
 }
-
