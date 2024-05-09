@@ -10,6 +10,7 @@
 #include <cmath>
 #include <iostream>
 #include <algorithm>
+#include <random>
 
 double pointLineDistance(const std::pair<double, double> &point, const std::pair<double, double> &line_start,
                          const std::pair<double, double> &line_end) {
@@ -142,16 +143,24 @@ game::game() {
         for (auto &point: points) {
             polygon_points.emplace_back(point.x, point.y);
         }
-        bricks.emplace_back(polygon_points);
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, 4); // Range: [0, 4]
+        int type = dis(gen);
+        bricks.emplace_back(polygon_points, type);
     }
+
+    // Powerup manager
+
+
 
     // clock
     gameClock = Clock();
     fps_to_show = 0;
 
+
     // load font
     font = TTF_OpenFont("../OpenSans-Regular.ttf", 24);
-    // check if the file is missing
     if (font == nullptr) {
         std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
     }
@@ -252,15 +261,26 @@ void game::update(float dt) {
         handleBallPolygonCollision(paddle, ball);
     }
 
-// Check for collisions with bricks
+    // Check for collisions with bricks
     for (auto &ball: balls) {
-        // Use erase-remove idiom with a lambda predicate
-        bricks.erase(std::remove_if(bricks.begin(), bricks.end(),
-                                    [&ball](const brick &brick) {
-                                        return handleBallPolygonCollision(brick.polygon_points, ball);
-                                    }),
-                     bricks.end());
+        // remove bricks that are hit. Randomely spawn powerups
+        bricks.erase(std::remove_if(bricks.begin(), bricks.end(), [&ball, this](brick &brick) {
+            if (handleBallPolygonCollision(brick.getPoints(), ball)) {
+                float x, y, vx, vy;
+                x = brick.getCenter().x;
+                y = brick.getCenter().y;
+                vx = 0.0f;
+                vy = 1.0f;
+                powerup_manager.spawnPowerup(x, y, vx, vy);
+                return true;
+            }
+            return false;
+        }), bricks.end());
     }
+
+    // update powerups
+    powerup_manager.update(dt);
+
 }
 
 void game::draw() {
@@ -285,9 +305,12 @@ void game::draw() {
         brick.draw(renderer);
     }
 
+    // update powerups
+    powerup_manager.draw(renderer);
+
     // draw the number of fps bottom update the number every 120 frames
     drawFPS();
-    if (gameClock.getFrameCount() % (FPS/4) == 0) {
+    if (gameClock.getFrameCount() % (FPS / 4) == 0) {
         fps_to_show = gameClock.get_fps();
     }
 

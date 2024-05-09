@@ -13,6 +13,10 @@
 
 #define CIRCLE_RADIUS 450
 
+// PowerUp
+#define POWERUP_SPEED 100
+#define POWERUP_SIZE 10
+
 #define FPS 120
 
 #endif // GAME_CONSTANTS_H

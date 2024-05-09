@@ -19,12 +19,20 @@
 
 class brick {
 public:
-    explicit brick(Polygon polygon_points);
+    brick(Polygon polygon_points, int8_t type);
 
     ~brick();
 
     void draw(SDL_Renderer *renderer) const;
 
+    [[nodiscard]] const Polygon &getPoints() const {
+        return polygon_points;
+    }
+
+    Vector2 getCenter();
+
+private:
+    int8_t type;
     Polygon polygon_points;
 };
 

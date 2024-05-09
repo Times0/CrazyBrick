@@ -29,6 +29,8 @@ set(SOURCES
         include/types.h
         include/clock.h
         src/clock.cpp
+        src/Powerup.cpp
+        include/Powerup.h
 )
 
 # Set the header files

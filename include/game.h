@@ -17,6 +17,7 @@
 #include "config.h"
 #include "brick.h"
 #include "clock.h"
+#include "Powerup.h"
 
 
 class game {
@@ -59,6 +60,8 @@ private:
     // font
     TTF_Font *font;
 
+    // powerups
+    PowerupManager powerup_manager;
 
     void drawFPS();
 };
