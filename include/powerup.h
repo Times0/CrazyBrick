@@ -78,7 +78,7 @@ public:
 
     void spawnPowerup(float x, float y, float vx, float vy);
 
-    void handlePaddleCollision(Polygon &paddle);
+    void handlePaddleCollision(const Polygon &paddle);
 
     void bind(Game *game) {
         game_ptr = game;

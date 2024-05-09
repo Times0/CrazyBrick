@@ -33,6 +33,8 @@ set(SOURCES
         include/powerup.h
         include/utils.h
         src/utils.cpp
+        src/paddle.cpp
+        include/paddle.h
 )
 
 # Set the header files

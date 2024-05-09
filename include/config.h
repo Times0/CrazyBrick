@@ -3,6 +3,8 @@
 
 #define GAME_WIDTH 1000
 #define GAME_HEIGHT 1000
+constexpr int CENTER_X = GAME_WIDTH / 2;
+constexpr int CENTER_Y = GAME_HEIGHT / 2;
 
 #define BALL_RADIUS 10
 #define BALL_SPEED 500

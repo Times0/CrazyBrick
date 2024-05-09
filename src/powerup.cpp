@@ -67,7 +67,7 @@ void PowerupManager::spawnPowerup(float x, float y, float vx, float vy) {
 
 }
 
-void PowerupManager::handlePaddleCollision(Polygon &paddle) {
+void PowerupManager::handlePaddleCollision(const Polygon &paddle) {
     powerups.erase(std::remove_if(powerups.begin(), powerups.end(), [&paddle, this](const auto &powerup) {
         if (handlePolygonCircleCollision(paddle, powerup->center, powerup->radius)) {
             // Apply power-up effect depending on the type
@@ -78,7 +78,7 @@ void PowerupManager::handlePaddleCollision(Polygon &paddle) {
 
             } else if (dynamic_cast<BiggerPaddle *>(powerup.get())) {
                 // Increase paddle size
-                game_ptr->increasePaddleSize();
+//                game_ptr->increasePaddleSize();
             }
 
 

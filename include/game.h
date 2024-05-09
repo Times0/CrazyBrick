@@ -18,6 +18,7 @@
 #include "clock.h"
 #include "utils.h"
 #include "powerup.h"
+#include "paddle.h"
 
 class PowerupManager;
 
@@ -46,11 +47,10 @@ private:
     float center_x = GAME_WIDTH / 2.;
     float center_y = GAME_HEIGHT / 2.;
 
-    float rotation_angle = 0.0f;
-    Polygon paddle;
-    uint32_t paddleSpeed = PADDLE_SPEED;
     bool running = true;
-    bool collision = false;
+
+    // paddle
+    Paddle paddle;
 
     // list of balls
     std::vector<ball> balls;

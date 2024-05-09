@@ -21,11 +21,6 @@ Game::Game() {
                               SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    // create the paddle
-    paddle = {{GAME_WIDTH / 2, GAME_HEIGHT / 2 - CIRCLE_RADIUS},
-              {GAME_WIDTH / 2, GAME_HEIGHT / 2 + CIRCLE_RADIUS},
-              {GAME_WIDTH / 2, GAME_HEIGHT / 2 + CIRCLE_RADIUS + PADDLE_HEIGHT},
-              {GAME_WIDTH / 2, GAME_HEIGHT / 2 - CIRCLE_RADIUS + PADDLE_HEIGHT}};
 
     // add the starting ball
     balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.5f, -1.0f);
@@ -50,6 +45,9 @@ Game::Game() {
 
     // powerup manager
     powerup_manager.bind(this);
+
+    // paddle
+    paddle = Paddle();
 
     // clock
     gameClock = Clock();
@@ -76,7 +74,6 @@ void Game::run() {
         if (dt > 0.1) {
             dt = 0.1;
         }
-        std::cout << dt << std::endl;
         handleEvents(dt);
         update(dt);
         draw();
@@ -88,42 +85,9 @@ void Game::handleEvents(float dt) {
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             running = false;
-        } else if (event.type == SDL_MOUSEMOTION) {
-            // move the ball to mouse position
-//            int x, y;
-//            SDL_GetMouseState(&x, &y);
-//            balls[0].setCenter({static_cast<float>(x), static_cast<float>(y)});
         }
     }
-    const Uint8 *keyboardStates = SDL_GetKeyboardState(nullptr);
-
-    if (keyboardStates[SDL_SCANCODE_LEFT]) {
-        rotation_angle += 0.1f * dt * static_cast<float>(paddleSpeed);
-    }
-    if (keyboardStates[SDL_SCANCODE_RIGHT]) {
-        rotation_angle -= 0.1f * dt * static_cast<float>(paddleSpeed);
-    }
-
-    if (keyboardStates[SDL_SCANCODE_LEFT] xor keyboardStates[SDL_SCANCODE_RIGHT]) {
-        rotation_angle = std::fmod(rotation_angle, 2 * M_PI);
-
-        const float offset_x = PADDLE_WIDTH / 2 * cos(M_PI / 2 - rotation_angle);
-        const float offset_y = PADDLE_WIDTH / 2 * sin(M_PI / 2 - rotation_angle);
-
-        paddle[3].x = std::cos(rotation_angle) * CIRCLE_RADIUS + center_x - offset_x;
-        paddle[3].y = std::sin(rotation_angle) * CIRCLE_RADIUS + center_y + offset_y;
-
-        paddle[2].x = std::cos(rotation_angle) * CIRCLE_RADIUS + center_x + offset_x;
-        paddle[2].y = std::sin(rotation_angle) * CIRCLE_RADIUS + center_y - offset_y;
-
-        paddle[1].x = std::cos(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + center_x + offset_x;
-        paddle[1].y = std::sin(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + center_y - offset_y;
-
-        paddle[0].x = std::cos(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + center_x - offset_x;
-        paddle[0].y = std::sin(rotation_angle) * (CIRCLE_RADIUS + PADDLE_HEIGHT) + center_y + offset_y;
-
-
-    }
+    paddle.handleEvents(dt);
 }
 
 void Game::update(float dt) {
@@ -153,7 +117,7 @@ void Game::update(float dt) {
 
     // Check for collisions with paddle
     for (auto &ball: balls) {
-        ball.handleSolidCollision(paddle);
+        ball.handleSolidCollision(paddle.getPoints());
     }
 
     // Check for collisions with bricks
@@ -175,7 +139,7 @@ void Game::update(float dt) {
     powerup_manager.update(dt);
 
     // Check for collisions with powerups
-    powerup_manager.handlePaddleCollision(paddle);
+    powerup_manager.handlePaddleCollision(paddle.getPoints());
 
 }
 
@@ -183,11 +147,9 @@ void Game::draw() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    drawPaddle();
     for (auto &ball: balls) {
         ball.draw(renderer);
     }
-
 
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 
@@ -201,29 +163,20 @@ void Game::draw() {
         brick.draw(renderer);
     }
 
-    // update powerups
+    // draw powerups
     powerup_manager.draw(renderer);
 
-    // draw the number of fps bottom update the number every 120 frames
+    // draw paddle
+    paddle.draw(renderer);
+
     drawFPS();
     if (gameClock.getFrameCount() % (FPS / 4) == 0) {
         fps_to_show = gameClock.get_fps();
     }
 
-
     SDL_RenderPresent(renderer);
 }
 
-void Game::drawPaddle() {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    for (size_t i = 0; i < paddle.size(); i++) {
-        SDL_RenderDrawLineF(renderer,
-                            paddle[i].x,
-                            paddle[i].y,
-                            paddle[(i + 1) % paddle.size()].x,
-                            paddle[(i + 1) % paddle.size()].y);
-    }
-}
 
 void Game::drawFPS() {
     SDL_Color color = {255, 255, 255, 255};
