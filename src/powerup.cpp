@@ -78,7 +78,7 @@ void PowerupManager::handlePaddleCollision(const Polygon &paddle) {
 
             } else if (dynamic_cast<BiggerPaddle *>(powerup.get())) {
                 // Increase paddle size
-//                game_ptr->increasePaddleSize();
+                game_ptr->increasePaddleSize();
             }
 
 

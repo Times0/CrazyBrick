@@ -18,30 +18,29 @@ public:
     }
 
     void update(bool isRotatingLeft, bool isRotatingRight, float dt) {
-        if (isRotatingLeft xor isRotatingRight) {
-            rotation_angle = std::fmod(rotation_angle, 2 * PI);
+        rotation_angle = std::fmod(rotation_angle, 2 * PI);
 
-            const int offset_x = width / 2 * std::cos(PI / 2 - rotation_angle);
-            const int offset_y = width / 2 * std::sin(PI / 2 - rotation_angle);
+        const int offset_x = width / 2 * std::cos(PI / 2 - rotation_angle);
+        const int offset_y = width / 2 * std::sin(PI / 2 - rotation_angle);
 
-            points[3].x = std::cos(rotation_angle) * CIRCLE_RADIUS + CENTER_X - offset_x;
-            points[3].y = std::sin(rotation_angle) * CIRCLE_RADIUS + CENTER_Y + offset_y;
+        points[3].x = std::cos(rotation_angle) * CIRCLE_RADIUS + CENTER_X - offset_x;
+        points[3].y = std::sin(rotation_angle) * CIRCLE_RADIUS + CENTER_Y + offset_y;
 
-            points[2].x = std::cos(rotation_angle) * CIRCLE_RADIUS + CENTER_X + offset_x;
-            points[2].y = std::sin(rotation_angle) * CIRCLE_RADIUS + CENTER_Y - offset_y;
+        points[2].x = std::cos(rotation_angle) * CIRCLE_RADIUS + CENTER_X + offset_x;
+        points[2].y = std::sin(rotation_angle) * CIRCLE_RADIUS + CENTER_Y - offset_y;
 
-            points[1].x = std::cos(rotation_angle) * (CIRCLE_RADIUS + height) + CENTER_X + offset_x;
-            points[1].y = std::sin(rotation_angle) * (CIRCLE_RADIUS + height) + CENTER_Y - offset_y;
+        points[1].x = std::cos(rotation_angle) * (CIRCLE_RADIUS + height) + CENTER_X + offset_x;
+        points[1].y = std::sin(rotation_angle) * (CIRCLE_RADIUS + height) + CENTER_Y - offset_y;
 
-            points[0].x = std::cos(rotation_angle) * (CIRCLE_RADIUS + height) + CENTER_X - offset_x;
-            points[0].y = std::sin(rotation_angle) * (CIRCLE_RADIUS + height) + CENTER_Y + offset_y;
+        points[0].x = std::cos(rotation_angle) * (CIRCLE_RADIUS + height) + CENTER_X - offset_x;
+        points[0].y = std::sin(rotation_angle) * (CIRCLE_RADIUS + height) + CENTER_Y + offset_y;
 
-            if (isRotatingLeft) {
-                rotation_angle += 0.1f * dt * static_cast<float>(speed);
-            } else {
-                rotation_angle -= 0.1f * dt * static_cast<float>(speed);
-            }
+        if (isRotatingLeft) {
+            rotation_angle += 0.1f * dt * static_cast<float>(speed);
+        } else if (isRotatingRight) {
+            rotation_angle -= 0.1f * dt * static_cast<float>(speed);
         }
+
     }
 
     const Polygon &getPoints() {
@@ -66,8 +65,8 @@ public:
         }
     }
 
-private:
     int width = PADDLE_WIDTH;
+private:
     int height = PADDLE_HEIGHT;
     int speed = PADDLE_SPEED;
 

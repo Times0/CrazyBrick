@@ -32,6 +32,8 @@ public:
 
     void addBall();
 
+    void increasePaddleSize();
+
 private:
     void handleEvents(float dt);
 
@@ -68,7 +70,6 @@ private:
 
     void drawFPS();
 
-    void increasePaddleSize();
 };
 
 #endif // CRAZYBRICK_GAME_H

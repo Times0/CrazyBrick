@@ -195,6 +195,5 @@ void Game::addBall() {
 }
 
 void Game::increasePaddleSize() {
-    // increase the size of the paddle
-
+    paddle.width += 2;
 }
