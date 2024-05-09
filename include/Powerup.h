@@ -78,14 +78,7 @@ public:
 
     void spawnPowerup(float x, float y, float vx, float vy);
 
-    void handlePaddleCollision(Polygon &paddle) {
-        powerups.erase(std::remove_if(powerups.begin(), powerups.end(), [&paddle](const auto &powerup) {
-            if (handlePolygonCircleCollision(paddle, powerup->center, powerup->radius)) {
-                return true;
-            }
-            return false;
-        }), powerups.end());
-    }
+    void handlePaddleCollision(Polygon &paddle);
 
     void clearPowerups() {
         powerups.clear();

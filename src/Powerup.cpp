@@ -42,8 +42,6 @@ void MultiBall::draw(SDL_Renderer *renderer) const {
 
 }
 
-// powerup_manager class implementation
-
 void BiggerPaddle::draw(SDL_Renderer *renderer) const {
     Powerup::draw(renderer);
 
@@ -56,6 +54,8 @@ void BiggerPaddle::draw(SDL_Renderer *renderer) const {
     SDL_RenderFillRect(renderer, &rect);
 }
 
+
+// powerup_manager class implementation
 void PowerupManager::spawnPowerup(float x, float y, float vx, float vy) {
     int powerupType = myRandomInt(0, 1);
     if (powerupType == 0) {
@@ -64,4 +64,16 @@ void PowerupManager::spawnPowerup(float x, float y, float vx, float vy) {
         powerups.push_back(std::make_unique<BiggerPaddle>(x, y, vx, vy));
     }
 
+}
+
+void PowerupManager::handlePaddleCollision(Polygon &paddle) {
+    powerups.erase(std::remove_if(powerups.begin(), powerups.end(), [&paddle](const auto &powerup) {
+        if (handlePolygonCircleCollision(paddle, powerup->center, powerup->radius)) {
+            // Apply power-up effect
+
+
+            return true;
+        }
+        return false;
+    }), powerups.end());
 }
