@@ -13,7 +13,6 @@
 #include <memory>
 #include <algorithm>
 
-
 #if defined(_WIN32)
 
 #include <SDL.h>
@@ -22,6 +21,7 @@
 #include <SDL2/SDL.h>
 #endif
 
+class Game;
 
 class Powerup {
 public:
@@ -80,12 +80,13 @@ public:
 
     void handlePaddleCollision(Polygon &paddle);
 
-    void clearPowerups() {
-        powerups.clear();
+    void bind(Game *game) {
+        game_ptr = game;
     }
 
 private:
     std::vector<std::unique_ptr<Powerup>> powerups;
+    Game *game_ptr{};
 };
 
 #endif //BREAKOUT_POWERUP_H

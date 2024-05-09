@@ -4,7 +4,7 @@
 #define GAME_WIDTH 1000
 #define GAME_HEIGHT 1000
 
-#define BALL_SIZE 10
+#define BALL_RADIUS 10
 #define BALL_SPEED 500
 
 #define PADDLE_WIDTH 200

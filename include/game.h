@@ -12,22 +12,24 @@
 #endif
 
 #include <vector>
-#include "ball.h"
 #include <cmath>
 #include "config.h"
 #include "brick.h"
 #include "clock.h"
-#include "powerup.h"
 #include "utils.h"
+#include "powerup.h"
 
+class PowerupManager;
 
-class game {
+class Game {
 public:
-    game();
+    Game();
 
-    ~game();
+    ~Game();
 
     void run();
+
+    void addBall();
 
 private:
     void handleEvents(float dt);
@@ -65,6 +67,8 @@ private:
     PowerupManager powerup_manager;
 
     void drawFPS();
+
+    void increasePaddleSize();
 };
 
 #endif // CRAZYBRICK_GAME_H

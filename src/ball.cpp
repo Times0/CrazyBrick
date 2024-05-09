@@ -4,7 +4,7 @@
 
 ball::ball(double x, double y, double vx, double vy) : center(x, y), velocity(vx, vy) {
     speed = BALL_SPEED;
-    radius = BALL_SIZE;
+    radius = BALL_RADIUS;
 }
 
 void ball::update(float dt) {

@@ -13,7 +13,7 @@
 #include <random>
 
 
-game::game() {
+Game::Game() {
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
     window = SDL_CreateWindow("Brick Breaker", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, GAME_WIDTH,
@@ -48,26 +48,27 @@ game::game() {
         bricks.emplace_back(polygon_points, type);
     }
 
+    // powerup manager
+    powerup_manager.bind(this);
+
     // clock
     gameClock = Clock();
     fps_to_show = 0;
-
 
     // load font
     font = TTF_OpenFont("../OpenSans-Regular.ttf", 24);
     if (font == nullptr) {
         std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
     }
-
 }
 
-game::~game() {
+Game::~Game() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
-void game::run() {
+void Game::run() {
     while (running) {
         float dt = gameClock.tick(FPS);
 
@@ -82,7 +83,7 @@ void game::run() {
     }
 }
 
-void game::handleEvents(float dt) {
+void Game::handleEvents(float dt) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
@@ -125,7 +126,7 @@ void game::handleEvents(float dt) {
     }
 }
 
-void game::update(float dt) {
+void Game::update(float dt) {
     for (auto &ball: balls) {
         ball.update(dt);
     }
@@ -178,7 +179,7 @@ void game::update(float dt) {
 
 }
 
-void game::draw() {
+void Game::draw() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
@@ -213,7 +214,7 @@ void game::draw() {
     SDL_RenderPresent(renderer);
 }
 
-void game::drawPaddle() {
+void Game::drawPaddle() {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     for (size_t i = 0; i < paddle.size(); i++) {
         SDL_RenderDrawLineF(renderer,
@@ -224,7 +225,7 @@ void game::drawPaddle() {
     }
 }
 
-void game::drawFPS() {
+void Game::drawFPS() {
     SDL_Color color = {255, 255, 255, 255};
     SDL_Surface *surface = TTF_RenderText_Solid(font, std::to_string(fps_to_show).c_str(), color);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -233,4 +234,14 @@ void game::drawFPS() {
     SDL_RenderCopy(renderer, texture, nullptr, &rect);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
+}
+
+// Powerups
+void Game::addBall() {
+    balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.5f, -1.0f);
+}
+
+void Game::increasePaddleSize() {
+    // increase the size of the paddle
+
 }

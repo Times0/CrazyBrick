@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "../include/powerup.h"
+#include "../include/game.h"
 
 // Powerup class implementation
 Powerup::Powerup(double x, double y, double vx, double vy) : center({x, y}), velocity({vx, vy}) {}
@@ -67,9 +68,18 @@ void PowerupManager::spawnPowerup(float x, float y, float vx, float vy) {
 }
 
 void PowerupManager::handlePaddleCollision(Polygon &paddle) {
-    powerups.erase(std::remove_if(powerups.begin(), powerups.end(), [&paddle](const auto &powerup) {
+    powerups.erase(std::remove_if(powerups.begin(), powerups.end(), [&paddle, this](const auto &powerup) {
         if (handlePolygonCircleCollision(paddle, powerup->center, powerup->radius)) {
-            // Apply power-up effect
+            // Apply power-up effect depending on the type
+            if (dynamic_cast<MultiBall *>(powerup.get())) {
+                // Add a new ball
+                game_ptr->addBall();
+
+
+            } else if (dynamic_cast<BiggerPaddle *>(powerup.get())) {
+                // Increase paddle size
+                game_ptr->increasePaddleSize();
+            }
 
 
             return true;
