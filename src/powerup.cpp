@@ -5,7 +5,7 @@
 #include <cmath>
 #include <memory>
 
-#include "../include/Powerup.h"
+#include "../include/powerup.h"
 
 // Powerup class implementation
 Powerup::Powerup(double x, double y, double vx, double vy) : center({x, y}), velocity({vx, vy}) {}

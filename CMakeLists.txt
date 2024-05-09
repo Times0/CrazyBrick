@@ -29,8 +29,8 @@ set(SOURCES
         include/types.h
         include/clock.h
         src/clock.cpp
-        src/Powerup.cpp
-        include/Powerup.h
+        src/powerup.cpp
+        include/powerup.h
         include/utils.h
         src/utils.cpp
 )

@@ -17,7 +17,7 @@
 #include "config.h"
 #include "brick.h"
 #include "clock.h"
-#include "Powerup.h"
+#include "powerup.h"
 #include "utils.h"
 
 
