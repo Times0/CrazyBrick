@@ -13,8 +13,6 @@
 
 #define CIRCLE_RADIUS 450
 
-#define N_BRICKS 3
-
 #define FPS 120
 
 #endif // GAME_CONSTANTS_H

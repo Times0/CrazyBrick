@@ -3,6 +3,7 @@
 #include "../include/config.h"
 #include "../include/types.h"
 #include "../include/brick.h"
+#include "../include/clock.h"
 
 #include <cmath>
 #include <vector>
@@ -80,7 +81,7 @@ std::vector<Polygon> generateCoords(int n, int h) {
 }
 
 bool handleBallPolygonCollision(const Polygon &polygon_points, ball &ball) {
-    // This function does not work with concave polygons
+    // This function is dependent on the order of the points in the polygon
 
     for (size_t i = 0; i < polygon_points.size(); ++i) {
         size_t next_index = (i + 1) % polygon_points.size();
@@ -115,6 +116,7 @@ bool handleBallPolygonCollision(const Polygon &polygon_points, ball &ball) {
 
 game::game() {
     SDL_Init(SDL_INIT_VIDEO);
+    TTF_Init();
     window = SDL_CreateWindow("Brick Breaker", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, GAME_WIDTH,
                               GAME_HEIGHT,
                               SDL_WINDOW_SHOWN);
@@ -128,6 +130,9 @@ game::game() {
 
     // add the starting ball
     balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.5f, -1.0f);
+    balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, -0.5f, -1.0f);
+    balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.0f, -1.0f);
+    balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.1f, -1.0f);
 
     // create the bricks
     std::vector<std::vector<Vector2>> coords = generateCoords(20, 50);
@@ -140,6 +145,17 @@ game::game() {
         bricks.emplace_back(polygon_points);
     }
 
+    // clock
+    gameClock = Clock();
+    fps_to_show = 0;
+
+    // load font
+    font = TTF_OpenFont("../OpenSans-Regular.ttf", 24);
+    // check if the file is missing
+    if (font == nullptr) {
+        std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
+    }
+
 }
 
 game::~game() {
@@ -149,18 +165,14 @@ game::~game() {
 }
 
 void game::run() {
-    const uint32_t FRAME_TIME = 1000 / FPS;
-    uint32_t lastFrameTime = 0;
-
     while (running) {
-        // Slow down the loop to the desired frame rate
-        Uint32 frameNow = SDL_GetTicks();
-        Uint32 timeSinceLastFrame = frameNow - lastFrameTime;
-        lastFrameTime = frameNow;
-        float dt = (float) timeSinceLastFrame / 1000.0f;
-        if (timeSinceLastFrame < FRAME_TIME) {
-            SDL_Delay(FRAME_TIME - timeSinceLastFrame);
+        float dt = gameClock.tick(FPS);
+
+        /* Avoid moving the elements too much in case of lag / window moving */
+        if (dt > 0.1) {
+            dt = 0.1;
         }
+        std::cout << dt << std::endl;
         handleEvents(dt);
         update(dt);
         draw();
@@ -273,6 +285,12 @@ void game::draw() {
         brick.draw(renderer);
     }
 
+    // draw the number of fps bottom update the number every 120 frames
+    drawFPS();
+    if (gameClock.getFrameCount() % (FPS/4) == 0) {
+        fps_to_show = gameClock.get_fps();
+    }
+
 
     SDL_RenderPresent(renderer);
 }
@@ -286,4 +304,15 @@ void game::drawPaddle() {
                             paddle[(i + 1) % paddle.size()].x,
                             paddle[(i + 1) % paddle.size()].y);
     }
+}
+
+void game::drawFPS() {
+    SDL_Color color = {255, 255, 255, 255};
+    SDL_Surface *surface = TTF_RenderText_Solid(font, std::to_string(fps_to_show).c_str(), color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect rect = {0, 0, 100, 100};
+    SDL_QueryTexture(texture, nullptr, nullptr, &rect.w, &rect.h);
+    SDL_RenderCopy(renderer, texture, nullptr, &rect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }

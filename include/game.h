@@ -4,9 +4,11 @@
 #ifdef _WIN32
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 #else
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #endif
 
 #include <vector>
@@ -14,6 +16,8 @@
 #include <cmath>
 #include "config.h"
 #include "brick.h"
+#include "clock.h"
+
 
 class game {
 public:
@@ -48,7 +52,15 @@ private:
     std::vector<ball> balls;
     // list of bricks
     std::vector<brick> bricks;
+    // clock
+    Clock gameClock;
+    int fps_to_show = 0;
 
+    // font
+    TTF_Font *font;
+
+
+    void drawFPS();
 };
 
 #endif // CRAZYBRICK_GAME_H
