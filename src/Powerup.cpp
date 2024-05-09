@@ -26,8 +26,8 @@ void Powerup::draw(SDL_Renderer *renderer) const {
     }
 }
 
-// multi_ball class implementation
-void multi_ball::draw(SDL_Renderer *renderer) const {
+// MultiBall class implementation
+void MultiBall::draw(SDL_Renderer *renderer) const {
     Powerup::draw(renderer);
 
     // set color to pink
@@ -44,3 +44,24 @@ void multi_ball::draw(SDL_Renderer *renderer) const {
 
 // powerup_manager class implementation
 
+void BiggerPaddle::draw(SDL_Renderer *renderer) const {
+    Powerup::draw(renderer);
+
+    // set color to yellow
+    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+
+    // draw a square
+    SDL_Rect rect = {static_cast<int>(center.x - radius / 2), static_cast<int>(center.y - radius / 2),
+                     static_cast<int>(radius), static_cast<int>(radius)};
+    SDL_RenderFillRect(renderer, &rect);
+}
+
+void PowerupManager::spawnPowerup(float x, float y, float vx, float vy) {
+    int powerupType = myRandomInt(0, 1);
+    if (powerupType == 0) {
+        powerups.push_back(std::make_unique<MultiBall>(x, y, vx, vy));
+    } else {
+        powerups.push_back(std::make_unique<BiggerPaddle>(x, y, vx, vy));
+    }
+
+}

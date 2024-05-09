@@ -12,108 +12,6 @@
 #include <algorithm>
 #include <random>
 
-double pointLineDistance(const std::pair<double, double> &point, const std::pair<double, double> &line_start,
-                         const std::pair<double, double> &line_end) {
-    double x = point.first;
-    double y = point.second;
-    double x1 = line_start.first;
-    double y1 = line_start.second;
-    double x2 = line_end.first;
-    double y2 = line_end.second;
-
-    double A = x - x1;
-    double B = y - y1;
-    double C = x2 - x1;
-    double D = y2 - y1;
-
-    double dot = A * C + B * D;
-    double len_sq = C * C + D * D;
-    double param = -1;
-    if (len_sq != 0) {
-        param = dot / len_sq;
-    }
-
-    double xx, yy;
-    if (param < 0) {
-        xx = x1;
-        yy = y1;
-    } else if (param > 1) {
-        xx = x2;
-        yy = y2;
-    } else {
-        xx = x1 + param * C;
-        yy = y1 + param * D;
-    }
-
-    double dx = x - xx;
-    double dy = y - yy;
-    return sqrt(dx * dx + dy * dy);
-
-
-}
-
-
-const int CENTER_X = GAME_WIDTH / 2;
-const int CENTER_Y = GAME_HEIGHT / 2;
-
-
-Vector2 getUnitCirclePos(int i, int n, int r) {
-    double angle = 2 * M_PI * i / n;
-    double x = std::cos(angle) * r + CENTER_X;
-    double y = std::sin(angle) * r + CENTER_Y;
-    return {x, y};
-}
-
-std::vector<Polygon> generateCoords(int n, int h) {
-    std::vector<Polygon> coords;
-
-    for (int r = 25; r < 300; r += h) {
-        for (int i = 0; i < n; ++i) {
-            Vector2 p1 = getUnitCirclePos(i, n, r);
-            Vector2 p2 = getUnitCirclePos((i + 1) % n, n, r);
-            Vector2 p3 = getUnitCirclePos((i + 1) % n, n, r + h);
-            Vector2 p4 = getUnitCirclePos(i, n, r + h);
-
-            coords.push_back({p1, p2, p3, p4});
-        }
-    }
-
-    return coords;
-}
-
-bool handleBallPolygonCollision(const Polygon &polygon_points, ball &ball) {
-    // This function is dependent on the order of the points in the polygon
-
-    for (size_t i = 0; i < polygon_points.size(); ++i) {
-        size_t next_index = (i + 1) % polygon_points.size();
-        const Vector2 &p1 = polygon_points[i];
-        const Vector2 &p2 = polygon_points[next_index];
-
-        float distance = pointLineDistance({ball.getX(), ball.getY()}, {p1.x, p1.y}, {p2.x, p2.y});
-        if (distance < ball.getRadius()) {
-            float dx = p2.x - p1.x;
-            float dy = p2.y - p1.y;
-            float normal_x = -dy;
-            float normal_y = dx;
-
-            float length = std::sqrt(normal_x * normal_x + normal_y * normal_y);
-            normal_x /= length;
-            normal_y /= length;
-
-            // Set the ball's position just outside
-            ball.setCenter({ball.getX() + normal_x * (ball.getRadius() - distance),
-                            ball.getY() + normal_y * (ball.getRadius() - distance)});
-
-            float dot_product = ball.getVelocity().x * normal_x + ball.getVelocity().y * normal_y;
-
-            ball.setVelocity({ball.getVelocity().x - 2 * dot_product * normal_x,
-                              ball.getVelocity().y - 2 * dot_product * normal_y});
-            return true;
-        }
-    }
-    return false;
-}
-
 
 game::game() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -149,10 +47,6 @@ game::game() {
         int type = dis(gen);
         bricks.emplace_back(polygon_points, type);
     }
-
-    // Powerup manager
-
-
 
     // clock
     gameClock = Clock();
@@ -238,40 +132,38 @@ void game::update(float dt) {
 
     // Check for collisions with borders
     for (auto &ball: balls) {
-        if (ball.getCenter().x - ball.getRadius() < 0) {
-            ball.setCenter({static_cast<float>(ball.getRadius()), ball.getCenter().y});
-            ball.setVelocity({-ball.getVelocity().x, ball.getVelocity().y});
+        if (ball.center.x - ball.radius < 0) {
+            ball.center = {static_cast<float>(ball.radius), ball.center.y};
+            ball.velocity.x = -ball.velocity.x;
         }
-        if (ball.getCenter().x + ball.getRadius() > GAME_WIDTH) {
-            ball.setCenter({static_cast<float>(GAME_WIDTH - ball.getRadius()), ball.getCenter().y});
-            ball.setVelocity({-ball.getVelocity().x, ball.getVelocity().y});
+        if (ball.center.x + ball.radius > GAME_WIDTH) {
+            ball.center = {static_cast<float>(GAME_WIDTH - ball.radius), ball.center.y};
+            ball.velocity.x = -ball.velocity.x;
         }
-        if (ball.getCenter().y - ball.getRadius() < 0) {
-            ball.setCenter({ball.getCenter().x, static_cast<float>(ball.getRadius())});
-            ball.setVelocity({ball.getVelocity().x, -ball.getVelocity().y});
+        if (ball.center.y - ball.radius < 0) {
+            ball.center = {ball.center.x, static_cast<float>(ball.radius)};
+            ball.velocity.y = -ball.velocity.y;
         }
-        if (ball.getCenter().y + ball.getRadius() > GAME_HEIGHT) {
-            ball.setCenter({ball.getCenter().x, static_cast<float>(GAME_HEIGHT - ball.getRadius())});
-            ball.setVelocity({ball.getVelocity().x, -ball.getVelocity().y});
+        if (ball.center.y + ball.radius > GAME_HEIGHT) {
+            ball.center = {ball.center.x, static_cast<float>(GAME_HEIGHT - ball.radius)};
+            ball.velocity.y = -ball.velocity.y;
         }
     }
 
     // Check for collisions with paddle
     for (auto &ball: balls) {
-        handleBallPolygonCollision(paddle, ball);
+        ball.handleSolidCollision(paddle);
     }
 
     // Check for collisions with bricks
     for (auto &ball: balls) {
-        // remove bricks that are hit. Randomely spawn powerups
+        // remove bricks that are hit. Randomly spawn powerups
         bricks.erase(std::remove_if(bricks.begin(), bricks.end(), [&ball, this](brick &brick) {
-            if (handleBallPolygonCollision(brick.getPoints(), ball)) {
-                float x, y, vx, vy;
+            if (ball.handleSolidCollision(brick.getPoints())) {
+                float x, y;
                 x = brick.getCenter().x;
                 y = brick.getCenter().y;
-                vx = 0.0f;
-                vy = 1.0f;
-                powerup_manager.spawnPowerup(x, y, vx, vy);
+                powerup_manager.spawnPowerup(x, y, 0, 1.0f);
                 return true;
             }
             return false;
@@ -280,6 +172,9 @@ void game::update(float dt) {
 
     // update powerups
     powerup_manager.update(dt);
+
+    // Check for collisions with powerups
+    powerup_manager.handlePaddleCollision(paddle);
 
 }
 

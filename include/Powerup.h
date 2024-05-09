@@ -7,6 +7,8 @@
 
 #include "types.h"
 #include "config.h"
+#include "utils.h"
+#include "ball.h"
 #include <cmath>
 #include <memory>
 #include <algorithm>
@@ -30,20 +32,25 @@ public:
     virtual void draw(SDL_Renderer *renderer) const;
 
     Vector2 center;
+    float radius = POWERUP_SIZE;
 private:
     Vector2 velocity;
     float speed = POWERUP_SPEED;
-protected:
-    float radius = POWERUP_SIZE;
 };
 
-class multi_ball : public Powerup {
+class MultiBall : public Powerup {
 public:
-    multi_ball(float x, float y, float vx, float vy) : Powerup(x, y, vx, vy) {}
+    MultiBall(float x, float y, float vx, float vy) : Powerup(x, y, vx, vy) {}
 
     void draw(SDL_Renderer *renderer) const override;
 };
 
+class BiggerPaddle : public Powerup {
+public:
+    BiggerPaddle(float x, float y, float vx, float vy) : Powerup(x, y, vx, vy) {}
+
+    void draw(SDL_Renderer *renderer) const override;
+};
 
 class PowerupManager {
 public:
@@ -69,8 +76,15 @@ public:
         }
     }
 
-    void spawnPowerup(float x, float y, float vx, float vy) {
-        powerups.push_back(std::make_unique<multi_ball>(x, y, vx, vy));
+    void spawnPowerup(float x, float y, float vx, float vy);
+
+    void handlePaddleCollision(Polygon &paddle) {
+        powerups.erase(std::remove_if(powerups.begin(), powerups.end(), [&paddle](const auto &powerup) {
+            if (handlePolygonCircleCollision(paddle, powerup->center, powerup->radius)) {
+                return true;
+            }
+            return false;
+        }), powerups.end());
     }
 
     void clearPowerups() {

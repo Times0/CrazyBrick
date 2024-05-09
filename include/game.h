@@ -18,6 +18,7 @@
 #include "brick.h"
 #include "clock.h"
 #include "Powerup.h"
+#include "utils.h"
 
 
 class game {

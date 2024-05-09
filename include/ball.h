@@ -2,6 +2,8 @@
 #define CRAZYBRICK_BALL_H
 
 #include <string>
+#include <cmath>
+#include "types.h"
 
 #ifdef _WIN32
 
@@ -13,36 +15,18 @@
 
 class ball {
 public:
-    ball(float x, float y, float vx, float vy);
+    ball(double x, double y, double vx, double vy);
 
     void update(float dt);
 
+    bool handleSolidCollision(const Polygon &polygon_points);
+
     void draw(SDL_Renderer *renderer) const;
 
-    // getters
-    SDL_FPoint getCenter() { return center; }
-
-    SDL_FPoint getVelocity() { return velocity; }
-
-    // get x, get y
-    float getX() const { return center.x; }
-    float getY() const { return center.y; }
-
-    uint32_t getRadius() const { return radius; }
-
-    // setters
-    void setCenter(SDL_FPoint pos) { center = pos; }
-
-    void setVelocity(SDL_FPoint vel) { velocity = vel; }
-
-    void setRadius(int s) { radius = s; }
-
-private:
-    SDL_FPoint center{};
+    Vector2 center;
+    Vector2 velocity;
     uint32_t radius;
-
     uint32_t speed;
-    SDL_FPoint velocity{};
 };
 
 #endif

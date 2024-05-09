@@ -31,6 +31,8 @@ set(SOURCES
         src/clock.cpp
         src/Powerup.cpp
         include/Powerup.h
+        include/utils.h
+        src/utils.cpp
 )
 
 # Set the header files
@@ -38,7 +40,7 @@ set(HEADERS
         include/game.h
         include/ball.h
         include/config.h
-)
+        include/utils.h)
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES})
