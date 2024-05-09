@@ -22,11 +22,7 @@ Game::Game() {
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 
-    // add the starting ball
-    balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.5f, -1.0f);
-    balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, -0.5f, -1.0f);
-    balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.0f, -1.0f);
-    balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.1f, -1.0f);
+
 
     // create the bricks
     std::vector<std::vector<Vector2>> coords = generateCoords(20, 50);
@@ -48,6 +44,9 @@ Game::Game() {
 
     // paddle
     paddle = Paddle();
+
+    // add the starting ball
+    addBall(paddle.getPoints()[0].x, paddle.getPoints()[0].y - 20);
 
     // clock
     gameClock = Clock();
@@ -177,7 +176,6 @@ void Game::draw() {
     SDL_RenderPresent(renderer);
 }
 
-
 void Game::drawFPS() {
     SDL_Color color = {255, 255, 255, 255};
     SDL_Surface *surface = TTF_RenderText_Solid(font, std::to_string(fps_to_show).c_str(), color);
@@ -190,8 +188,20 @@ void Game::drawFPS() {
 }
 
 // Powerups
-void Game::addBall() {
-    balls.emplace_back(GAME_WIDTH / 2, GAME_HEIGHT - 2, 0.5f, -1.0f);
+void Game::addBall(float x, float y) {
+    float vx, vy;
+    const float speed = 0.5f; // Adjust this value to control the ball speed
+
+    do {
+        vx = myRandomInt(-100, 100) / 100.0f;
+        vy = myRandomInt(-100, 100) / 100.0f;
+    } while (vx == 0.0f && vy == 0.0f); // Ensure that the ball has some initial velocity
+
+    const float magnitude = std::sqrt(vx * vx + vy * vy);
+    vx = vx / magnitude * speed;
+    vy = vy / magnitude * speed;
+
+    balls.emplace_back(x, y, vx, vy);
 }
 
 void Game::increasePaddleSize() {

@@ -30,7 +30,7 @@ public:
 
     void run();
 
-    void addBall();
+    void addBall(float x = GAME_WIDTH / 2, float y = GAME_HEIGHT / 2);
 
     void increasePaddleSize();
 
@@ -40,8 +40,6 @@ private:
     void update(float dt);
 
     void draw();
-
-    void drawPaddle();
 
     SDL_Window *window;
     SDL_Renderer *renderer;

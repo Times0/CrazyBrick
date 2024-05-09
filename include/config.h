@@ -11,7 +11,8 @@ constexpr int CENTER_Y = GAME_HEIGHT / 2;
 
 #define PADDLE_WIDTH 200
 #define PADDLE_HEIGHT 20
-#define PADDLE_SPEED 40
+#define PADDLE_MAX_SPEED 50
+#define PADDLE_ACCELERATION 1
 
 #define CIRCLE_RADIUS 450
 

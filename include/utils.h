@@ -21,3 +21,11 @@ double pointLineDistance(const std::pair<double, double> &point, const std::pair
                          const std::pair<double, double> &line_end);
 
 bool handlePolygonCircleCollision(const Polygon &polygon_points, Vector2 center, float radius);
+
+#include <algorithm>
+#include <type_traits>
+
+template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+constexpr T myclamp(T value, T min_val, T max_val) {
+    return std::max(min_val, std::min(value, max_val));
+}

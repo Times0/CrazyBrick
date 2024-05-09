@@ -3,6 +3,7 @@
 #include <iostream>
 #include "config.h"
 #include "types.h"
+#include "utils.h"
 
 constexpr float PI = 3.14159265358979323846f;
 
@@ -20,6 +21,7 @@ public:
     void update(bool isRotatingLeft, bool isRotatingRight, float dt) {
         rotation_angle = std::fmod(rotation_angle, 2 * PI);
 
+
         const int offset_x = width / 2 * std::cos(PI / 2 - rotation_angle);
         const int offset_y = width / 2 * std::sin(PI / 2 - rotation_angle);
 
@@ -35,12 +37,18 @@ public:
         points[0].x = std::cos(rotation_angle) * (CIRCLE_RADIUS + height) + CENTER_X - offset_x;
         points[0].y = std::sin(rotation_angle) * (CIRCLE_RADIUS + height) + CENTER_Y + offset_y;
 
-        if (isRotatingLeft) {
-            rotation_angle += 0.1f * dt * static_cast<float>(speed);
-        } else if (isRotatingRight) {
-            rotation_angle -= 0.1f * dt * static_cast<float>(speed);
+        if (speed < 0 && isRotatingLeft || speed > 0 && isRotatingRight || !isRotatingLeft && !isRotatingRight) {
+            speed = 0;
         }
 
+        if (isRotatingLeft) {
+            speed += PADDLE_ACCELERATION;
+        } else if (isRotatingRight) {
+            speed -= PADDLE_ACCELERATION;
+        }
+
+        speed = myclamp(speed, (float) -max_speed, (float) max_speed);
+        rotation_angle += speed * dt * 0.1;
     }
 
     const Polygon &getPoints() {
@@ -68,8 +76,9 @@ public:
     int width = PADDLE_WIDTH;
 private:
     int height = PADDLE_HEIGHT;
-    int speed = PADDLE_SPEED;
+    float speed = 0;
+    int max_speed = PADDLE_MAX_SPEED;
 
-    float rotation_angle = 0.0f;
+    float rotation_angle = PI / 2;
     Polygon points;
 };
