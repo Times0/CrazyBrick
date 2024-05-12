@@ -21,11 +21,8 @@ Game::Game() {
                               SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-
-
-
     // create the bricks
-    std::vector<std::vector<Vector2>> coords = generateCoords(20, 50);
+    std::vector<std::vector<Vector2>> coords = generateCoords(50, 50);
     bricks.reserve(coords.size());
     for (auto &points: coords) {
         Polygon polygon_points;
@@ -119,15 +116,20 @@ void Game::update(float dt) {
         ball.handleSolidCollision(paddle.getPoints());
     }
 
-    // Check for collisions with bricks
+    // Check for collisions brick ball
     for (auto &ball: balls) {
         // remove bricks that are hit. Randomly spawn powerups
         bricks.erase(std::remove_if(bricks.begin(), bricks.end(), [&ball, this](brick &brick) {
             if (ball.handleSolidCollision(brick.getPoints())) {
-                float x, y;
-                x = brick.getCenter().x;
-                y = brick.getCenter().y;
-                powerup_manager.spawnPowerup(x, y, 0, 1.0f);
+                if (myRandomInt(0, 100) < 10) {
+                    // 10% chance of spawning a powerup (randomly)
+                    double x, y, vx, vy;
+                    x = brick.getCenter().x;
+                    y = brick.getCenter().y;
+                    vx = ball.velocity.x;
+                    vy = ball.velocity.y;
+                    powerup_manager.spawnPowerup(x, y, vx, vy);
+                }
                 return true;
             }
             return false;
