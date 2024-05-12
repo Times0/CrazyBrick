@@ -76,7 +76,7 @@ private:
 
     void drawFPS();
 
-    void loadBricks(const std::string &file);
+    void loadBricksFromFile(const std::string &filename);
 };
 
 #endif // CRAZYBRICK_GAME_H

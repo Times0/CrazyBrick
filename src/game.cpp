@@ -28,7 +28,7 @@ Game::Game() {
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     bricks.clear();
-    loadBricks("levels/level1.txt");
+    loadBricksFromFile("levels/level1.txt");
 
     // powerup manager
     powerup_manager.bind(this);
@@ -45,7 +45,7 @@ Game::Game() {
     fps_to_show = 0;
 
     // load font
-    font = TTF_OpenFont("./assets/fonts/OpenSans-Regular.ttf", 24);
+    font = TTF_OpenFont("../assets/fonts/OpenSans-Regular.ttf", 24);
     if (font == nullptr) {
         std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
     }
@@ -64,7 +64,7 @@ Game::~Game() {
 }
 
 
-void Game::loadBricks(const std::string &filename) {
+void Game::loadBricksFromFile(const std::string &filename) {
 
     auto full_path = project_root_dir / filename;
     std::cout << "Loading file: " << full_path << std::endl;
@@ -90,7 +90,7 @@ void Game::loadBricks(const std::string &filename) {
     }
 
     // Check if the values are valid
-    if (n <= 0 || brick_height <= 0 || min_circle_radius <= 0 || max_circle_radius <= 0) {
+    if (n <= 0 || brick_height <= 0 || min_circle_radius < 0 || max_circle_radius <= 0) {
         std::cerr << "Error: Invalid values in file" << std::endl;
         file.close();
         return;
@@ -98,7 +98,7 @@ void Game::loadBricks(const std::string &filename) {
     file.close();
 
     // create the bricks
-    std::vector<std::vector<Vector2>> coords = generateCoords(n, brick_height,min_circle_radius , max_circle_radius);
+    std::vector<std::vector<Vector2>> coords = generateCoords(n, brick_height, min_circle_radius, max_circle_radius);
     for (auto &points: coords) {
         Polygon polygon_points;
         for (auto &point: points) {
