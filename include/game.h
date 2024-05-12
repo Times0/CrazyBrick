@@ -19,6 +19,7 @@
 #include "utils.h"
 #include "powerup.h"
 #include "paddle.h"
+#include "audiomanager.h"
 
 class PowerupManager;
 
@@ -55,7 +56,7 @@ private:
     // list of balls
     std::vector<ball> balls;
     // list of bricks
-    std::vector<brick> bricks;
+    std::list<brick> bricks;
     // clock
     Clock gameClock;
     int fps_to_show = 0;
@@ -65,6 +66,9 @@ private:
 
     // powerups
     PowerupManager powerup_manager;
+
+    //audio
+    AudioManager audio_manager;
 
     void drawFPS();
 

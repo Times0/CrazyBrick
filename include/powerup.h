@@ -12,6 +12,7 @@
 #include <cmath>
 #include <memory>
 #include <algorithm>
+#include <list>
 
 #if defined(_WIN32)
 
@@ -59,15 +60,14 @@ public:
     ~PowerupManager() = default;
 
     void update(float dt) {
-        // Update each power-up
         for (auto &powerup: powerups) {
             powerup->update(dt);
         }
 
-        // Remove power-ups that are out of screen
-        powerups.erase(std::remove_if(powerups.begin(), powerups.end(), [](const auto &powerup) {
-            return powerup->center.y > GAME_HEIGHT;
-        }), powerups.end());
+        // Remove power-ups that are out of screen (all directions) using the fact that it is a list
+        powerups.remove_if([](const std::unique_ptr<Powerup> &powerup) {
+            return powerup->center.y - powerup->radius > GAME_HEIGHT;
+        });
     }
 
     void draw(SDL_Renderer *renderer) const {
@@ -85,7 +85,7 @@ public:
     }
 
 private:
-    std::vector<std::unique_ptr<Powerup>> powerups;
+    std::list<std::unique_ptr<Powerup>> powerups;
     Game *game_ptr{};
 };
 

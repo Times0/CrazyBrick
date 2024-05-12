@@ -75,7 +75,7 @@ double pointLineDistance(const std::pair<double, double> &point,
 
     double dx = x - xx;
     double dy = y - yy;
-    return sqrt(dx * dx + dy * dy);
+    return sqrt(dx * dx + dy * dy) + 0.0001;
 
 
 }

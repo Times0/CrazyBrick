@@ -27,6 +27,9 @@ public:
     Vector2 velocity;
     uint32_t radius;
     uint32_t speed;
+
+private:
+    void bounce(std::pair<Vector2, Vector2> mypair, float min_ditance);
 };
 
 #endif

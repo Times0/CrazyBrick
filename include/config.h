@@ -19,6 +19,8 @@ constexpr int CENTER_Y = GAME_HEIGHT / 2;
 // PowerUp
 #define POWERUP_SPEED 100
 #define POWERUP_SIZE 10
+#define PROBABILTY_POWERUP 100
+
 
 #define FPS 120
 

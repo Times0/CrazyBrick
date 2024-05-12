@@ -23,7 +23,6 @@ Game::Game() {
 
     // create the bricks
     std::vector<std::vector<Vector2>> coords = generateCoords(50, 50);
-    bricks.reserve(coords.size());
     for (auto &points: coords) {
         Polygon polygon_points;
         for (auto &point: points) {
@@ -54,6 +53,12 @@ Game::Game() {
     if (font == nullptr) {
         std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
     }
+
+    // Play welcome song
+    audio_manager.LoadSound("D:\\Programmation\\cpp\\CrazyBrick\\assets\\sound\\welcome.wav", "welcome");
+    audio_manager.LoadSound("D:\\Programmation\\cpp\\CrazyBrick\\assets\\sound\\tap.wav", "ball_collide");
+
+    audio_manager.PlaySound("welcome");
 }
 
 Game::~Game() {
@@ -113,7 +118,9 @@ void Game::update(float dt) {
 
     // Check for collisions with paddle
     for (auto &ball: balls) {
-        ball.handleSolidCollision(paddle.getPoints());
+        if (ball.handleSolidCollision(paddle.getPoints())) {
+            audio_manager.PlaySound("ball_collide");
+        }
     }
 
     // Check for collisions brick ball
@@ -121,8 +128,7 @@ void Game::update(float dt) {
         // remove bricks that are hit. Randomly spawn powerups
         bricks.erase(std::remove_if(bricks.begin(), bricks.end(), [&ball, this](brick &brick) {
             if (ball.handleSolidCollision(brick.getPoints())) {
-                if (myRandomInt(0, 100) < 10) {
-                    // 10% chance of spawning a powerup (randomly)
+                if (myRandomInt(0, 100) < PROBABILTY_POWERUP) {
                     double x, y, vx, vy;
                     x = brick.getCenter().x;
                     y = brick.getCenter().y;
@@ -192,7 +198,7 @@ void Game::drawFPS() {
 // Powerups
 void Game::addBall(float x, float y) {
     float vx, vy;
-    const float speed = 0.5f; // Adjust this value to control the ball speed
+    const float speed = 0.7f;
 
     do {
         vx = myRandomInt(-100, 100) / 100.0f;

@@ -64,26 +64,19 @@ void PowerupManager::spawnPowerup(float x, float y, float vx, float vy) {
     } else {
         powerups.push_back(std::make_unique<BiggerPaddle>(x, y, vx, vy));
     }
-
 }
 
 void PowerupManager::handlePaddleCollision(const Polygon &paddle) {
-    powerups.erase(std::remove_if(powerups.begin(), powerups.end(), [&paddle, this](const auto &powerup) {
+    powerups.remove_if([&paddle, this](const std::unique_ptr<Powerup> &powerup) {
         if (handlePolygonCircleCollision(paddle, powerup->center, powerup->radius)) {
             // Apply power-up effect depending on the type
-            if (dynamic_cast<MultiBall *>(powerup.get())) {
-                // Add a new ball
+            if (auto multiBall = dynamic_cast<MultiBall *>(powerup.get())) {
                 game_ptr->addBall();
-
-
-            } else if (dynamic_cast<BiggerPaddle *>(powerup.get())) {
-                // Increase paddle size
+            } else if (auto biggerPaddle = dynamic_cast<BiggerPaddle *>(powerup.get())) {
                 game_ptr->increasePaddleSize();
             }
-
-
             return true;
         }
         return false;
-    }), powerups.end());
+    });
 }

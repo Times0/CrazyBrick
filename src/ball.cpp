@@ -41,30 +41,34 @@ bool ball::handleSolidCollision(const Polygon &polygon_points) {
         }
     }
     if (min_ditance < radius) {
-        const Vector2 &p1 = mypair.first;
-        const Vector2 &p2 = mypair.second;
-
-        float dx = p2.x - p1.x;
-        float dy = p2.y - p1.y;
-        float normal_x = -dy;
-        float normal_y = dx;
-
-        float length = std::sqrt(normal_x * normal_x + normal_y * normal_y);
-        normal_x /= length;
-        normal_y /= length;
-
-        // Set the ball's position just outside
-        center = {center.x + normal_x * (radius - min_ditance),
-                  center.y + normal_y * (radius - min_ditance)};
-
-        float dot_product = velocity.x * normal_x + velocity.y * normal_y;
-
-        velocity = {velocity.x - 2 * dot_product * normal_x,
-                    velocity.y - 2 * dot_product * normal_y};
+        bounce(mypair, min_ditance);
+        // play sound
         return true;
 
     }
     return false;
+}
 
+void ball::bounce(std::pair<Vector2, Vector2> mypair, float min_ditance) {
+    const Vector2 &p1 = mypair.first;
+    const Vector2 &p2 = mypair.second;
+
+    float dx = p2.x - p1.x;
+    float dy = p2.y - p1.y;
+    float normal_x = -dy;
+    float normal_y = dx;
+
+    float length = std::sqrt(normal_x * normal_x + normal_y * normal_y);
+    normal_x /= length;
+    normal_y /= length;
+
+    // Set the ball's position just outside
+    center = {center.x + normal_x * (radius - min_ditance),
+              center.y + normal_y * (radius - min_ditance)};
+
+    float dot_product = velocity.x * normal_x + velocity.y * normal_y;
+
+    velocity = {velocity.x - 2 * dot_product * normal_x,
+                velocity.y - 2 * dot_product * normal_y};
 }
 
