@@ -1,17 +1,16 @@
-//
-// Created by Dorian on 09/05/2024.
-//
 
+#include <iostream>
 #include "../include/utils.h"
-#include <cmath>
-#include <random>
-
 
 int myRandomInt(int min, int max) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dis(min, max);
     return dis(gen);
+}
+
+float myclamp(float value, float min, float max) {
+    return std::max(min, std::min(value, max));
 }
 
 
@@ -95,4 +94,25 @@ bool handlePolygonCircleCollision(const Polygon &polygon_points, Vector2 center,
         }
     }
     return false;
+}
+
+
+std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>> loadFont(const std::string &path, int ptSize) {
+    TTF_Font *font = TTF_OpenFont(path.c_str(), ptSize);
+    if (font == nullptr) {
+        std::cerr << "Error: Failed to load font " << TTF_GetError() << std::endl;
+        return nullptr;
+    }
+    return std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>>(font, TTF_CloseFont);
+}
+
+
+void drawText(SDL_Renderer *renderer, TTF_Font *font, const std::string &text, int x, int y, SDL_Color color) {
+    SDL_Surface *surface = TTF_RenderText_Solid(font, text.c_str(), color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect rect = {x, y, 100, 100};
+    SDL_QueryTexture(texture, nullptr, nullptr, &rect.w, &rect.h);
+    SDL_RenderCopy(renderer, texture, nullptr, &rect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }

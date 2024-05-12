@@ -26,8 +26,7 @@ class PowerupManager;
 
 class Game {
 public:
-    Game();
-
+    Game(SDL_Window* window, SDL_Renderer* renderer);
     ~Game();
 
     void run();
@@ -36,15 +35,17 @@ public:
 
     void increasePaddleSize();
 
-private:
+protected:
     void handleEvents(float dt);
+
+    friend class LevelSelection;
 
     void update(float dt);
 
     void draw();
 
-    SDL_Window *window;
-    SDL_Renderer *renderer;
+    SDL_Window* window;
+    SDL_Renderer* renderer;
 
     float center_x = GAME_WIDTH / 2.;
     float center_y = GAME_HEIGHT / 2.;
@@ -54,21 +55,14 @@ private:
     // paddle
     Paddle paddle;
 
-    // list of balls
     std::vector<ball> balls;
-    // list of bricks
     std::list<brick> bricks;
-    // clock
     Clock gameClock;
     int fps_to_show = 0;
 
     // font
-    TTF_Font *font;
-
-    // powerups
+    std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>> font;
     PowerupManager powerup_manager;
-
-    //audio
     AudioManager audio_manager;
 
     // project root dir

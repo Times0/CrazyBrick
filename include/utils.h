@@ -9,23 +9,34 @@
 #include "types.h"
 #include "config.h"
 #include "ball.h"
+#include <algorithm>
+#include <type_traits>
+#include "../include/utils.h"
+#include <cmath>
+#include <random>
+#include <memory>
+#include <SDL_ttf.h>
+#include <functional>
+#include "SDL_ttf.h"
 
 
 int myRandomInt(int min, int max);
+
+float myclamp(float value, float min, float max);
+
 
 Vector2 getUnitCirclePos(int i, int n, int r);
 
 std::vector<Polygon> generateCoords(int n, int h, int min_r, int max_r);
 
-double pointLineDistance(const std::pair<double, double> &point, const std::pair<double, double> &line_start,
+double pointLineDistance(const std::pair<double, double> &point,
+                         const std::pair<double, double> &line_start,
                          const std::pair<double, double> &line_end);
+
 
 bool handlePolygonCircleCollision(const Polygon &polygon_points, Vector2 center, float radius);
 
-#include <algorithm>
-#include <type_traits>
 
-template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-constexpr T myclamp(T value, T min_val, T max_val) {
-    return std::max(min_val, std::min(value, max_val));
-}
+std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>> loadFont(const std::string &path, int ptSize);
+
+void drawText(SDL_Renderer *renderer, TTF_Font *font, const std::string &text, int x, int y, SDL_Color color);

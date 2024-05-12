@@ -1,7 +1,7 @@
-#include "../include/game.h"
+#include "../include/level_selection.h"
 
-int main(int argc, char* argv[]) {
-    Game app;
+int main(int argc, char *argv[]) {
+    LevelSelection app = LevelSelection();
     app.run();
-    return 0;
+    exit(0);
 }

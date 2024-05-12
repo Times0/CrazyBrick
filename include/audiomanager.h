@@ -19,8 +19,8 @@ public:
         Mix_CloseAudio();
     }
 
-    void LoadSound(const std::string& filePath, const std::string& name){
-        Mix_Chunk* chunk = Mix_LoadWAV(filePath.c_str());
+    void LoadSound(const std::string &filePath, const std::string &name) {
+        Mix_Chunk *chunk = Mix_LoadWAV(filePath.c_str());
         if (chunk == nullptr) {
             // Handle error with explanation
             std::cerr << "Failed to load sound: because " << Mix_GetError() << std::endl;
@@ -29,7 +29,7 @@ public:
         sounds[name] = std::shared_ptr<Mix_Chunk>(chunk, Mix_FreeChunk);
     }
 
-    void PlaySound(const std::string& name) {
+    void PlaySound(const std::string &name) {
         auto it = sounds.find(name);
         if (it != sounds.end()) {
             Mix_PlayChannel(-1, it->second.get(), 0);

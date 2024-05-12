@@ -17,40 +17,18 @@
 #include <filesystem>
 
 
-Game::Game() {
-    SDL_Init(SDL_INIT_VIDEO);
-    TTF_Init();
+Game::Game(SDL_Window *window, SDL_Renderer *renderer) : window(window), renderer(renderer) {
     project_root_dir = std::filesystem::current_path() / "..";
-
-    window = SDL_CreateWindow("Brick Breaker", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, GAME_WIDTH,
-                              GAME_HEIGHT,
-                              SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
-    bricks.clear();
-    loadBricksFromFile("levels/level1.txt");
-
-    // powerup manager
     powerup_manager.bind(this);
-
-    // paddle
     paddle = Paddle();
-
-    // add the starting ball
     addBall(paddle.getPoints()[0].x, paddle.getPoints()[0].y - 20);
-
-
-    // clock
     gameClock = Clock();
     fps_to_show = 0;
-
-    // load font
-    font = TTF_OpenFont("../assets/fonts/OpenSans-Regular.ttf", 24);
+    font = loadFont("../assets/fonts/OpenSans-Regular.ttf", 24);
     if (font == nullptr) {
         std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
     }
 
-    // Play welcome song
     audio_manager.LoadSound((project_root_dir / "assets/sound/welcome.wav").string(), "welcome");
     audio_manager.LoadSound((project_root_dir / "assets/sound/ball_collide.wav").string(), "ball_collide");
 
@@ -58,9 +36,6 @@ Game::Game() {
 }
 
 Game::~Game() {
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
 }
 
 
@@ -128,7 +103,11 @@ void Game::handleEvents(float dt) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
-            running = false;
+            exit(0);
+        } else if (event.type == SDL_KEYDOWN) {
+            if (event.key.keysym.sym == SDLK_ESCAPE) {
+                running = false;
+            }
         }
     }
     paddle.handleEvents(dt);
@@ -227,14 +206,7 @@ void Game::draw() {
 }
 
 void Game::drawFPS() {
-    SDL_Color color = {255, 255, 255, 255};
-    SDL_Surface *surface = TTF_RenderText_Solid(font, std::to_string(fps_to_show).c_str(), color);
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_Rect rect = {0, 0, 100, 100};
-    SDL_QueryTexture(texture, nullptr, nullptr, &rect.w, &rect.h);
-    SDL_RenderCopy(renderer, texture, nullptr, &rect);
-    SDL_FreeSurface(surface);
-    SDL_DestroyTexture(texture);
+    drawText(renderer, font.get(), "FPS: " + std::to_string(fps_to_show), 10, 10, {255, 255, 255});
 }
 
 // Powerups

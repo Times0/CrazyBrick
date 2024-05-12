@@ -25,8 +25,8 @@ set(SOURCES
         src/main.cpp
         src/game.cpp
         src/ball.cpp
-        include/level.h
-        src/level.cpp
+        include/level_selection.h
+        src/level_selection.cpp
         include/brick.h
         src/brick.cpp
         include/brick.h
@@ -36,10 +36,10 @@ set(SOURCES
         src/powerup.cpp
         include/powerup.h
         include/utils.h
-        src/utils.cpp
         src/paddle.cpp
         include/paddle.h
         include/audiomanager.h
+        src/utils.cpp
 )
 
 # Set the header files
