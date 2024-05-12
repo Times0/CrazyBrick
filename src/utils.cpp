@@ -22,10 +22,10 @@ Vector2 getUnitCirclePos(int i, int n, int r) {
     return {x, y};
 }
 
-std::vector<Polygon> generateCoords(int n, int h) {
+std::vector<Polygon> generateCoords(int n, int h, int min_r, int max_r) {
     std::vector<Polygon> coords;
 
-    for (int r = 25; r < 300; r += h) {
+    for (int r = min_r; r < max_r; r += h) {
         for (int i = 0; i < n; ++i) {
             Vector2 p1 = getUnitCirclePos(i, n, r);
             Vector2 p2 = getUnitCirclePos((i + 1) % n, n, r);

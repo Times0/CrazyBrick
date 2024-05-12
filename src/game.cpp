@@ -11,29 +11,24 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <filesystem>
 
 
 Game::Game() {
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
+    project_root_dir = std::filesystem::current_path() / "..";
+
     window = SDL_CreateWindow("Brick Breaker", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, GAME_WIDTH,
                               GAME_HEIGHT,
                               SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    // create the bricks
-    std::vector<std::vector<Vector2>> coords = generateCoords(50, 50);
-    for (auto &points: coords) {
-        Polygon polygon_points;
-        for (auto &point: points) {
-            polygon_points.emplace_back(point.x, point.y);
-        }
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, 4); // Range: [0, 4]
-        int type = dis(gen);
-        bricks.emplace_back(polygon_points, type);
-    }
+    bricks.clear();
+    loadBricks("levels/level1.txt");
 
     // powerup manager
     powerup_manager.bind(this);
@@ -44,19 +39,20 @@ Game::Game() {
     // add the starting ball
     addBall(paddle.getPoints()[0].x, paddle.getPoints()[0].y - 20);
 
+
     // clock
     gameClock = Clock();
     fps_to_show = 0;
 
     // load font
-    font = TTF_OpenFont("../OpenSans-Regular.ttf", 24);
+    font = TTF_OpenFont("./assets/fonts/OpenSans-Regular.ttf", 24);
     if (font == nullptr) {
         std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
     }
 
     // Play welcome song
-    audio_manager.LoadSound("D:\\Programmation\\cpp\\CrazyBrick\\assets\\sound\\welcome.wav", "welcome");
-    audio_manager.LoadSound("D:\\Programmation\\cpp\\CrazyBrick\\assets\\sound\\tap.wav", "ball_collide");
+    audio_manager.LoadSound((project_root_dir / "assets/sound/welcome.wav").string(), "welcome");
+    audio_manager.LoadSound((project_root_dir / "assets/sound/ball_collide.wav").string(), "ball_collide");
 
     audio_manager.PlaySound("welcome");
 }
@@ -65,6 +61,53 @@ Game::~Game() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+
+void Game::loadBricks(const std::string &filename) {
+
+    auto full_path = project_root_dir / filename;
+    std::cout << "Loading file: " << full_path << std::endl;
+
+    std::ifstream
+            file(full_path);
+
+
+    if (!file.is_open()) {
+        std::cerr << "Error: Failed to open file " << filename << std::endl;
+        return;
+    }
+
+    std::string line;
+    std::getline(file, line); // Read the first line
+    std::istringstream iss(line);
+
+    int n, brick_height, min_circle_radius, max_circle_radius;
+    if (!(iss >> n >> brick_height >> min_circle_radius >> max_circle_radius)) {
+        std::cerr << "Error: Invalid file format" << std::endl;
+        file.close();
+        return;
+    }
+
+    // Check if the values are valid
+    if (n <= 0 || brick_height <= 0 || min_circle_radius <= 0 || max_circle_radius <= 0) {
+        std::cerr << "Error: Invalid values in file" << std::endl;
+        file.close();
+        return;
+    }
+    file.close();
+
+    // create the bricks
+    std::vector<std::vector<Vector2>> coords = generateCoords(n, brick_height,min_circle_radius , max_circle_radius);
+    for (auto &points: coords) {
+        Polygon polygon_points;
+        for (auto &point: points) {
+            polygon_points.emplace_back(point.x, point.y);
+        }
+        int type = myRandomInt(0, n - 1);
+        bricks.emplace_back(polygon_points, type);
+    }
+
 }
 
 void Game::run() {
@@ -96,7 +139,7 @@ void Game::update(float dt) {
         ball.update(dt);
     }
 
-    // Check for collisions with borders
+    // Ball borders
     for (auto &ball: balls) {
         if (ball.center.x - ball.radius < 0) {
             ball.center = {static_cast<float>(ball.radius), ball.center.y};
@@ -116,17 +159,16 @@ void Game::update(float dt) {
         }
     }
 
-    // Check for collisions with paddle
     for (auto &ball: balls) {
         if (ball.handleSolidCollision(paddle.getPoints())) {
             audio_manager.PlaySound("ball_collide");
         }
     }
 
-    // Check for collisions brick ball
+    // Ball Brick
     for (auto &ball: balls) {
         // remove bricks that are hit. Randomly spawn powerups
-        bricks.erase(std::remove_if(bricks.begin(), bricks.end(), [&ball, this](brick &brick) {
+        bricks.remove_if([&ball, this](brick &brick) {
             if (ball.handleSolidCollision(brick.getPoints())) {
                 if (myRandomInt(0, 100) < PROBABILTY_POWERUP) {
                     double x, y, vx, vy;
@@ -139,7 +181,7 @@ void Game::update(float dt) {
                 return true;
             }
             return false;
-        }), bricks.end());
+        });
     }
 
     // update powerups

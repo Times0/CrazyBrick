@@ -15,7 +15,7 @@ int myRandomInt(int min, int max);
 
 Vector2 getUnitCirclePos(int i, int n, int r);
 
-std::vector<Polygon> generateCoords(int n, int h);
+std::vector<Polygon> generateCoords(int n, int h, int min_r, int max_r);
 
 double pointLineDistance(const std::pair<double, double> &point, const std::pair<double, double> &line_start,
                          const std::pair<double, double> &line_end);

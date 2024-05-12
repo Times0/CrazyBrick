@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <cmath>
+#include <filesystem>
 #include "config.h"
 #include "brick.h"
 #include "clock.h"
@@ -70,8 +71,12 @@ private:
     //audio
     AudioManager audio_manager;
 
+    // project root dir
+    std::filesystem::path project_root_dir;
+
     void drawFPS();
 
+    void loadBricks(const std::string &file);
 };
 
 #endif // CRAZYBRICK_GAME_H

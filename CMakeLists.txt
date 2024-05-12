@@ -39,7 +39,6 @@ set(SOURCES
         src/utils.cpp
         src/paddle.cpp
         include/paddle.h
-        src/audiomanager.cpp
         include/audiomanager.h
 )
 
