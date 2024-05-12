@@ -19,19 +19,19 @@ std::vector<SDL_Vertex> brick::getVertices() const {
     SDL_Color color;
     switch (type) {
         case 0:
-            color = {255, 0, 0, 255}; // Red
+            color = {156, 39, 176, 255}; // Tomato
             break;
         case 1:
-            color = {0, 255, 0, 255}; // Green
+            color = {76, 175, 80, 255}; // Green Sea
             break;
         case 2:
-            color = {0, 0, 255, 255}; // Blue
+            color = {33, 150, 243, 255}; // Blue Sky
             break;
         case 3:
-            color = {255, 255, 0, 255}; // Yellow
+            color = {255, 235, 59, 255}; // Yellow Sun
             break;
         default:
-            color = {255, 50, 255, 255}; // Default color (purple)
+            color = {156, 39, 176, 255}; // Purple Plum
             break;
     }
 
