@@ -10,6 +10,24 @@
 
 Brick::Brick(Polygon polygon_points, int8_t type) : polygon_points(std::move(polygon_points)), type(type) {
     _vertices.reserve(polygon_points.size());
+    //we initialize the collision count according to the type of the brick
+    switch(type){
+        case 0:
+            collision_count = 1;
+            break;
+        case 1:
+            collision_count = 2;
+            break;
+        case 2:
+            collision_count = 3;
+            break;
+        case 3:
+            collision_count = 4;
+            break;
+        default:
+            collision_count = 1;
+            break;
+    }
 }
 
 Brick::~Brick() = default;
@@ -68,4 +86,12 @@ Vector2 Brick::getCenter() {
 }
 
 
+void Brick::decreaseCollisionCount() {
+    collision_count--;
+}
+
+
+int8_t Brick::getCollisionCount() const {
+    return collision_count;
+}
 

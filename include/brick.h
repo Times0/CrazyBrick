@@ -30,11 +30,15 @@ public:
     }
 
     Vector2 getCenter();
+    void decreaseCollisionCount();
+    int8_t getCollisionCount() const;
+
 
 private:
+    int8_t collision_count = 1;
+
     int8_t type;
     Polygon polygon_points;
-
     std::vector<SDL_Vertex> _vertices;
     std::vector<int32_t> _indices = {0, 1, 3, 1, 2, 3};
 
