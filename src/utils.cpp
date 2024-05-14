@@ -2,7 +2,7 @@
 #include <iostream>
 #include "../include/utils.h"
 
-int myRandomInt(int min, int max) {
+int random_int(int min, int max) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dis(min, max);

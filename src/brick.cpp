@@ -8,13 +8,13 @@
 #include <cmath>
 
 
-brick::brick(Polygon polygon_points, int8_t type) : polygon_points(std::move(polygon_points)), type(type) {
+Brick::Brick(Polygon polygon_points, int8_t type) : polygon_points(std::move(polygon_points)), type(type) {
     _vertices.reserve(polygon_points.size());
 }
 
-brick::~brick() = default;
+Brick::~Brick() = default;
 
-std::vector<SDL_Vertex> brick::getVertices() const {
+std::vector<SDL_Vertex> Brick::getVertices() const {
     std::vector<SDL_Vertex> vertices;
     SDL_Color color;
     switch (type) {
@@ -46,7 +46,7 @@ std::vector<SDL_Vertex> brick::getVertices() const {
     return vertices;
 }
 
-void brick::draw(SDL_Renderer *renderer) const {
+void Brick::draw(SDL_Renderer *renderer) const {
     const auto vertices = getVertices();
     SDL_RenderGeometry(renderer,
                        nullptr,
@@ -56,7 +56,7 @@ void brick::draw(SDL_Renderer *renderer) const {
                        _indices.size());
 }
 
-Vector2 brick::getCenter() {
+Vector2 Brick::getCenter() {
     Vector2 center = {0, 0};
     for (const auto &point: polygon_points) {
         center.x += point.x;

@@ -20,7 +20,7 @@
 #include "SDL_ttf.h"
 
 
-int myRandomInt(int min, int max);
+int random_int(int min, int max);
 
 float myclamp(float value, float min, float max);
 

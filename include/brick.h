@@ -17,15 +17,15 @@
 #include <SDL2/SDL.h>
 #endif
 
-class brick {
+class Brick {
 public:
-    brick(Polygon polygon_points, int8_t type);
+    Brick(Polygon polygon_points, int8_t type);
 
-    ~brick();
+    ~Brick();
 
     void draw(SDL_Renderer *renderer) const;
 
-    const Polygon &getPoints() {
+    const Polygon &get_points() {
         return polygon_points;
     }
 

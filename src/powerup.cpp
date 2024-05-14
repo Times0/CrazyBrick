@@ -58,7 +58,7 @@ void BiggerPaddle::draw(SDL_Renderer *renderer) const {
 
 // powerup_manager class implementation
 void PowerupManager::spawnPowerup(float x, float y, float vx, float vy) {
-    int powerupType = myRandomInt(0, 1);
+    int powerupType = random_int(0, 1);
     if (powerupType == 0) {
         powerups.push_back(std::make_unique<MultiBall>(x, y, vx, vy));
     } else {
@@ -71,9 +71,9 @@ void PowerupManager::handlePaddleCollision(const Polygon &paddle) {
         if (handlePolygonCircleCollision(paddle, powerup->center, powerup->radius)) {
             // Apply power-up effect depending on the type
             if (auto multiBall = dynamic_cast<MultiBall *>(powerup.get())) {
-                game_ptr->addBall();
+                game_ptr->add_ball();
             } else if (auto biggerPaddle = dynamic_cast<BiggerPaddle *>(powerup.get())) {
-                game_ptr->increasePaddleSize();
+                game_ptr->increase_paddle_size();
             }
             return true;
         }

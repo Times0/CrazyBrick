@@ -21,18 +21,18 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer) : window(window), rendere
     project_root_dir = std::filesystem::current_path() / "..";
     powerup_manager.bind(this);
     paddle = Paddle();
-    addBall(center_x, GAME_HEIGHT - 50);
-    gameClock = Clock();
+    add_ball(center_x, GAME_HEIGHT - 50);
+    game_clock = Clock();
     fps_to_show = 0;
     font = loadFont("../assets/fonts/OpenSans-Regular.ttf", 24);
     if (font == nullptr) {
         std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
     }
 
-    audio_manager.LoadSound((project_root_dir / "assets/sound/welcome.wav").string(), "welcome");
-    audio_manager.LoadSound((project_root_dir / "assets/sound/ball_collide.wav").string(), "ball_collide");
+    audio_manager.load_sound((project_root_dir / "assets/sound/welcome.wav").string(), "welcome");
+    audio_manager.load_sound((project_root_dir / "assets/sound/ball_collide.wav").string(), "ball_collide");
 
-    audio_manager.PlaySound("welcome");
+    audio_manager.play_sound("welcome");
 }
 
 Game::~Game() = default;
@@ -78,27 +78,27 @@ void Game::loadBricksFromFile(const std::string &name) {
         for (auto &point: points) {
             polygon_points.emplace_back(point.x, point.y);
         }
-        int type = myRandomInt(0, n - 1);
-        bricks.emplace_back(polygon_points, type);
+        int type = random_int(0, n - 1);
+        bricks.emplace_back(std::make_unique<Brick>(polygon_points, type));
     }
 
 }
 
 void Game::run() {
     while (_running) {
-        float dt = gameClock.tick(FPS);
+        float dt = game_clock.tick(FPS);
 
         /* Avoid moving the elements too much in case of lag or freeze */
         if (dt > 0.1) {
             dt = 0.1;
         }
-        handleEvents(dt);
+        handle_events(dt);
         update(dt);
         draw();
     }
 }
 
-void Game::handleEvents(float dt) {
+void Game::handle_events(float dt) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
@@ -132,22 +132,16 @@ void Game::update(float dt) {
     // Ball paddle
     for (auto &ball: balls) {
         if (ball->handleSolidCollision(paddle.getPoints())) {
-            audio_manager.PlaySound("ball_collide");
+            audio_manager.play_sound("ball_collide");
         }
     }
 
     // Ball Brick
     for (auto &ball: balls) {
-        // remove bricks that are hit. Randomly spawn powerups
-        bricks.remove_if([&ball, this](brick &brick) {
-            if (ball->handleSolidCollision(brick.getPoints())) {
-                if (myRandomInt(0, 100) < PROBABILITY_POWERUP) {
-                    double x, y, vx, vy;
-                    x = brick.getCenter().x;
-                    y = brick.getCenter().y;
-                    vx = ball->velocity.x;
-                    vy = ball->velocity.y;
-                    powerup_manager.spawnPowerup(x, y, vx, vy);
+        bricks.remove_if([this, &ball](const std::unique_ptr<Brick> &brick) {
+            if (ball->handleSolidCollision(brick->get_points())) {
+                if (random_int(0, 100) < PROBABILITY_POWERUP) {
+                    spawn_powerup(brick->getCenter(), ball->velocity);
                 }
                 return true;
             }
@@ -176,7 +170,7 @@ void Game::draw() {
 
     // draw bricks using their coords
     for (auto &brick: bricks) {
-        brick.draw(renderer);
+        brick->draw(renderer);
     }
 
     // draw powerups
@@ -186,8 +180,8 @@ void Game::draw() {
     paddle.draw(renderer);
 
     drawFPS();
-    if (gameClock.getFrameCount() % (FPS / 4) == 0) {
-        fps_to_show = gameClock.get_fps();
+    if (game_clock.getFrameCount() % (FPS / 4) == 0) {
+        fps_to_show = game_clock.get_fps();
     }
 
     SDL_RenderPresent(renderer);
@@ -198,7 +192,7 @@ void Game::drawFPS() {
 }
 
 // Powerups
-void Game::addBall(float x, float y) {
+void Game::add_ball(float x, float y) {
     const float speed = 0.7f;
     float vx, vy;
 
@@ -221,6 +215,10 @@ void Game::addBall(float x, float y) {
     balls.push_back(std::make_unique<Ball>(x, y, vx, vy));
 }
 
-void Game::increasePaddleSize() {
+void Game::increase_paddle_size() {
     paddle.width += 2;
+}
+
+void Game::spawn_powerup(Vector2 pos, Vector2 vel) {
+    powerup_manager.spawnPowerup(pos.x, pos.y, vel.x, vel.y);
 }

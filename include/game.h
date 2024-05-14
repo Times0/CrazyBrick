@@ -33,12 +33,12 @@ public:
 
     void run();
 
-    void addBall(float x = 0.f, float y = 0.f);
+    void add_ball(float x = 0.f, float y = 0.f);
 
-    void increasePaddleSize();
+    void increase_paddle_size();
 
 protected:
-    void handleEvents(float dt);
+    void handle_events(float dt);
 
     friend class LevelSelection;
 
@@ -59,8 +59,10 @@ protected:
 
     // balls
     std::list<std::unique_ptr<Ball>> balls;
-    std::list<brick> bricks;
-    Clock gameClock;
+
+    // bricks
+    std::list<std::unique_ptr<Brick>> bricks;
+    Clock game_clock;
     int fps_to_show = 0;
 
     // font
@@ -74,6 +76,8 @@ protected:
     void drawFPS();
 
     void loadBricksFromFile(const std::string &filename);
+
+    void spawn_powerup(Vector2 pos, Vector2 vel);
 };
 
 #endif // CRAZYBRICK_GAME_H

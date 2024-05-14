@@ -19,7 +19,7 @@ public:
         Mix_CloseAudio();
     }
 
-    void LoadSound(const std::string &filePath, const std::string &name) {
+    void load_sound(const std::string &filePath, const std::string &name) {
         Mix_Chunk *chunk = Mix_LoadWAV(filePath.c_str());
         if (chunk == nullptr) {
             // Handle error with explanation
@@ -29,7 +29,7 @@ public:
         sounds[name] = std::shared_ptr<Mix_Chunk>(chunk, Mix_FreeChunk);
     }
 
-    void PlaySound(const std::string &name) {
+    void play_sound(const std::string &name) {
         auto it = sounds.find(name);
         if (it != sounds.end()) {
             Mix_PlayChannel(-1, it->second.get(), 0);
