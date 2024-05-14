@@ -103,7 +103,7 @@ std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>> loadFont(const std::s
         std::cerr << "Error: Failed to load font " << TTF_GetError() << std::endl;
         return nullptr;
     }
-    return std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>>(font, TTF_CloseFont);
+    return {font, TTF_CloseFont};
 }
 
 

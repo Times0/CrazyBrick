@@ -17,11 +17,18 @@ LevelSelection::LevelSelection() {
 
     // Find number of levels available in the levels directory
     std::string levels_dir = (std::filesystem::current_path() / ".." / "levels").string();
+
     for (const auto &entry: std::filesystem::directory_iterator(levels_dir)) {
         // only save the basename (no extension)
+        // only save txt files
+        if (entry.path().extension() != ".txt") {
+            continue;
+        }
         _levels.push_back(entry.path().filename().replace_extension("").string());
     }
-
+    std::sort(_levels.begin(), _levels.end(), [](const std::string &a, const std::string &b) {
+        return a < b;
+    });
 }
 
 void LevelSelection::handleEvents() {
@@ -105,7 +112,7 @@ void LevelSelection::draw() {
 
 void LevelSelection::playLevel(int level) {
     _level = std::make_unique<Game>(window, renderer);
-    _level->loadBricksFromFile("levels/level" + std::to_string(level) + ".txt");
+    _level->loadBricksFromFile(_levels[level - 1]);
     _level->run();
 }
 

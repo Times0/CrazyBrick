@@ -39,9 +39,9 @@ Game::~Game() {
 }
 
 
-void Game::loadBricksFromFile(const std::string &filename) {
+void Game::loadBricksFromFile(const std::string &name) {
 
-    auto full_path = project_root_dir / filename;
+    auto full_path = project_root_dir / "levels" / (name + ".txt");
     std::cout << "Loading file: " << full_path << std::endl;
 
     std::ifstream
@@ -49,7 +49,7 @@ void Game::loadBricksFromFile(const std::string &filename) {
 
 
     if (!file.is_open()) {
-        std::cerr << "Error: Failed to open file " << filename << std::endl;
+        std::cerr << "Error: Failed to open file " << full_path << std::endl;
         return;
     }
 
@@ -89,7 +89,7 @@ void Game::run() {
     while (running) {
         float dt = gameClock.tick(FPS);
 
-        /* Avoid moving the elements too much in case of lag / window moving */
+        /* Avoid moving the elements too much in case of lag or freeze */
         if (dt > 0.1) {
             dt = 0.1;
         }
