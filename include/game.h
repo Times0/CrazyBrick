@@ -37,6 +37,8 @@ public:
 
     void increase_paddle_size();
 
+    void double_balls();
+
 protected:
     void handle_events(float dt);
 
@@ -55,7 +57,7 @@ protected:
     bool _running = true;
 
     // paddle
-    Paddle paddle;
+    std::unique_ptr<Paddle> paddle;
 
     // balls
     std::list<std::unique_ptr<Ball>> balls;
@@ -73,11 +75,12 @@ protected:
     // project root dir
     std::filesystem::path project_root_dir;
 
-    void drawFPS();
+    void draw_fps();
 
     void loadBricksFromFile(const std::string &filename);
 
     void spawn_powerup(Vector2 pos, Vector2 vel);
+
 };
 
 #endif // CRAZYBRICK_GAME_H

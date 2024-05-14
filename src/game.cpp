@@ -20,7 +20,7 @@
 Game::Game(SDL_Window *window, SDL_Renderer *renderer) : window(window), renderer(renderer) {
     project_root_dir = std::filesystem::current_path() / "..";
     powerup_manager.bind(this);
-    paddle = Paddle();
+    paddle = std::make_unique<Paddle>();
     add_ball(center_x, GAME_HEIGHT - 50);
     game_clock = Clock();
     fps_to_show = 0;
@@ -109,7 +109,7 @@ void Game::handle_events(float dt) {
             }
         }
     }
-    paddle.handleEvents(dt);
+    paddle->handleEvents(dt);
 }
 
 void Game::update(float dt) {
@@ -131,7 +131,7 @@ void Game::update(float dt) {
 
     // Ball paddle
     for (auto &ball: balls) {
-        if (ball->handleSolidCollision(paddle.getPoints())) {
+        if (ball->handleSolidCollision(paddle->get_points())) {
             audio_manager.play_sound("ball_collide");
         }
     }
@@ -143,7 +143,9 @@ void Game::update(float dt) {
                 brick->decrease_collision_count();
                 if (brick->get_collision_count() <= 0) {
                     if (random_int(0, 100) < PROBABILITY_POWERUP) {
-                        spawn_powerup(brick->get_center(), ball->velocity);
+                        Vector2 pos = brick->get_center();
+                        Vector2 vel = ball->velocity;
+                        powerup_manager.spawn_random_powerup(pos.x, pos.y, vel.x, vel.y);
                     }
                     return true;
                 }
@@ -151,10 +153,8 @@ void Game::update(float dt) {
             return false;
         });
     }
-    
-
     // Check for collisions with powerups
-    powerup_manager.handlePaddleCollision(paddle.getPoints());
+    powerup_manager.handle_collision_with_paddle(paddle->get_points());
 }
 
 void Game::draw() {
@@ -181,9 +181,9 @@ void Game::draw() {
     powerup_manager.draw(renderer);
 
     // draw paddle
-    paddle.draw(renderer);
+    paddle->draw(renderer);
 
-    drawFPS();
+    draw_fps();
     if (game_clock.getFrameCount() % (FPS / 4) == 0) {
         fps_to_show = game_clock.get_fps();
     }
@@ -191,7 +191,7 @@ void Game::draw() {
     SDL_RenderPresent(renderer);
 }
 
-void Game::drawFPS() {
+void Game::draw_fps() {
     drawText(renderer, font.get(), "FPS: " + std::to_string(fps_to_show), 10, 10, {255, 255, 255});
 }
 
@@ -220,9 +220,13 @@ void Game::add_ball(float x, float y) {
 }
 
 void Game::increase_paddle_size() {
-    paddle.width += 2;
+    paddle->width += 20;
 }
 
-void Game::spawn_powerup(Vector2 pos, Vector2 vel) {
-    powerup_manager.spawnPowerup(pos.x, pos.y, vel.x, vel.y);
+void Game::double_balls() {
+    int n = balls.size();
+    for (int i = 0; i < n; i++) {
+        auto &ball = balls.front();
+        add_ball(ball->center.x, ball->center.y);
+    }
 }

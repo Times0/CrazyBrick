@@ -28,13 +28,19 @@ class Powerup {
 public:
     Powerup(double x, double y, double vx, double vy);
 
+    virtual std::unique_ptr<Powerup> create(float x, float y, float vx, float vy) const = 0;
+
     void update(float dt);
 
     virtual void draw(SDL_Renderer *renderer) const;
 
     Vector2 center;
     float radius = POWERUP_SIZE;
+
+    virtual void apply_effect(Game *game) = 0;
+
 private:
+
     Vector2 velocity;
     float speed = POWERUP_SPEED;
 };
@@ -43,12 +49,37 @@ class MultiBall : public Powerup {
 public:
     MultiBall(float x, float y, float vx, float vy) : Powerup(x, y, vx, vy) {}
 
+    std::unique_ptr<Powerup> create(float x, float y, float vx, float vy) const override {
+        return std::make_unique<MultiBall>(x, y, vx, vy);
+    }
+
+    void apply_effect(Game *game) override;
+
     void draw(SDL_Renderer *renderer) const override;
 };
 
 class BiggerPaddle : public Powerup {
 public:
     BiggerPaddle(float x, float y, float vx, float vy) : Powerup(x, y, vx, vy) {}
+
+    std::unique_ptr<Powerup> create(float x, float y, float vx, float vy) const override {
+        return std::make_unique<BiggerPaddle>(x, y, vx, vy);
+    }
+
+    void apply_effect(Game *game) override;
+
+    void draw(SDL_Renderer *renderer) const override;
+};
+
+class DoubleBalls : public Powerup {
+public:
+    DoubleBalls(float x, float y, float vx, float vy) : Powerup(x, y, vx, vy) {}
+
+    std::unique_ptr<Powerup> create(float x, float y, float vx, float vy) const override {
+        return std::make_unique<DoubleBalls>(x, y, vx, vy);
+    }
+
+    void apply_effect(Game *game) override;
 
     void draw(SDL_Renderer *renderer) const override;
 };
@@ -76,9 +107,11 @@ public:
         }
     }
 
-    void spawnPowerup(float x, float y, float vx, float vy);
+    void spawn_random_powerup(float x, float y, float vx, float vy);
 
-    void handlePaddleCollision(const Polygon &paddle);
+    static std::unique_ptr<Powerup> create_powerup(const std::string &name, float x, float y, float vx, float vy);
+
+    void handle_collision_with_paddle(const Polygon &paddle);
 
     void bind(Game *game) {
         game_ptr = game;

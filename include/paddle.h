@@ -51,7 +51,7 @@ public:
         rotation_angle += speed * dt * 0.1;
     }
 
-    const Polygon &getPoints() {
+    const Polygon &get_points() {
         return points;
     }
 

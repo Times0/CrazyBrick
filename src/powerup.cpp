@@ -8,7 +8,6 @@
 #include "../include/powerup.h"
 #include "../include/game.h"
 
-// Powerup class implementation
 Powerup::Powerup(double x, double y, double vx, double vy) : center({x, y}), velocity({vx, vy}) {}
 
 void Powerup::update(float dt) {
@@ -43,6 +42,10 @@ void MultiBall::draw(SDL_Renderer *renderer) const {
 
 }
 
+void MultiBall::apply_effect(Game *game) {
+    game->add_ball();
+}
+
 void BiggerPaddle::draw(SDL_Renderer *renderer) const {
     Powerup::draw(renderer);
 
@@ -55,28 +58,53 @@ void BiggerPaddle::draw(SDL_Renderer *renderer) const {
     SDL_RenderFillRect(renderer, &rect);
 }
 
+void BiggerPaddle::apply_effect(Game *game) {
+    game->increase_paddle_size();
+}
+
+void DoubleBalls::draw(SDL_Renderer *renderer) const {
+    Powerup::draw(renderer);
+
+    // set color to yellow
+    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+
+    // draw a square
+    SDL_Rect rect = {static_cast<int>(center.x - radius / 2), static_cast<int>(center.y - radius / 2),
+                     static_cast<int>(radius), static_cast<int>(radius)};
+    SDL_RenderFillRect(renderer, &rect);
+}
+
+void DoubleBalls::apply_effect(Game *game) {
+    game->double_balls();
+}
 
 // powerup_manager class implementation
-void PowerupManager::spawnPowerup(float x, float y, float vx, float vy) {
-    int powerupType = random_int(0, 1);
-    if (powerupType == 0) {
-        powerups.push_back(std::make_unique<MultiBall>(x, y, vx, vy));
-    } else {
-        powerups.push_back(std::make_unique<BiggerPaddle>(x, y, vx, vy));
+void PowerupManager::spawn_random_powerup(float x, float y, float vx, float vy) {
+    static std::vector<std::string> powerupTypes = {"MultiBall", "BiggerPaddle", "DoubleBalls"};
+    std::string powerupType = powerupTypes[random_int(0, powerupTypes.size() - 1)];
+    auto powerup = create_powerup(powerupType, x, y, vx, vy);
+    if (powerup) {
+        powerups.push_back(std::move(powerup));
     }
 }
 
-void PowerupManager::handlePaddleCollision(const Polygon &paddle) {
+void PowerupManager::handle_collision_with_paddle(const Polygon &paddle) {
     powerups.remove_if([&paddle, this](const std::unique_ptr<Powerup> &powerup) {
         if (handlePolygonCircleCollision(paddle, powerup->center, powerup->radius)) {
-            // Apply power-up effect depending on the type
-            if (auto multiBall = dynamic_cast<MultiBall *>(powerup.get())) {
-                game_ptr->add_ball();
-            } else if (auto biggerPaddle = dynamic_cast<BiggerPaddle *>(powerup.get())) {
-                game_ptr->increase_paddle_size();
-            }
+            powerup->apply_effect(game_ptr);
             return true;
         }
         return false;
     });
+}
+
+std::unique_ptr<Powerup> PowerupManager::create_powerup(const std::string &name, float x, float y, float vx, float vy) {
+    if (name == "MultiBall") {
+        return std::make_unique<MultiBall>(x, y, vx, vy);
+    } else if (name == "BiggerPaddle") {
+        return std::make_unique<BiggerPaddle>(x, y, vx, vy);
+    } else if (name == "DoubleBalls") {
+        return std::make_unique<DoubleBalls>(x, y, vx, vy);
+    }
+    return nullptr;
 }
