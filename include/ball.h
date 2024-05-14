@@ -30,7 +30,7 @@ public:
     uint32_t radius;
     uint32_t speed;
 
-    bool isOutOfBounds() const;
+    bool is_out_of_bounds() const;
 
 private:
     void bounce(std::pair<Vector2, Vector2> mypair, float min_ditance);

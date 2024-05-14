@@ -119,7 +119,7 @@ void Game::update(float dt) {
     powerup_manager.update(dt);
 
     balls.remove_if([this](const std::unique_ptr<Ball> &ball) {
-        if (ball->isOutOfBounds()) {
+        if (ball->is_out_of_bounds()) {
             if (balls.size() == 1) {
                 _running = false;
             }
@@ -228,5 +228,11 @@ void Game::double_balls() {
     for (int i = 0; i < n; i++) {
         auto &ball = balls.front();
         add_ball(ball->center.x, ball->center.y);
+    }
+}
+
+void Game::increase_ball_speed() {
+    for (auto &ball: balls) {
+        ball->speed *= 2;
     }
 }

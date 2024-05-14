@@ -84,6 +84,20 @@ public:
     void draw(SDL_Renderer *renderer) const override;
 };
 
+class FasterBall : public Powerup {
+public:
+    FasterBall(float x, float y, float vx, float vy) : Powerup(x, y, vx, vy) {}
+
+    std::unique_ptr<Powerup> create(float x, float y, float vx, float vy) const override {
+        return std::make_unique<FasterBall>(x, y, vx, vy);
+    }
+
+    void apply_effect(Game *game) override;
+
+    void draw(SDL_Renderer *renderer) const override;
+
+};
+
 class PowerupManager {
 public:
     PowerupManager() = default;

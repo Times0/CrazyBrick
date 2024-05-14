@@ -39,6 +39,8 @@ public:
 
     void double_balls();
 
+    void increase_ball_speed();
+
 protected:
     void handle_events(float dt);
 

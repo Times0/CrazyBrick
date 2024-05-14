@@ -70,7 +70,7 @@ void Ball::bounce(std::pair<Vector2, Vector2> mypair, float min_ditance) {
                 velocity.y - 2 * dot_product * normal_y};
 }
 
-bool Ball::isOutOfBounds() const {
+bool Ball::is_out_of_bounds() const {
     return center.y - radius > GAME_HEIGHT || center.y + radius < 0 || center.x - radius > GAME_WIDTH ||
            center.x + radius < 0;
 }

@@ -26,7 +26,6 @@ void Powerup::draw(SDL_Renderer *renderer) const {
     }
 }
 
-// MultiBall class implementation
 void MultiBall::draw(SDL_Renderer *renderer) const {
     Powerup::draw(renderer);
 
@@ -65,8 +64,8 @@ void BiggerPaddle::apply_effect(Game *game) {
 void DoubleBalls::draw(SDL_Renderer *renderer) const {
     Powerup::draw(renderer);
 
-    // set color to yellow
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+    // set color to blue
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 
     // draw a square
     SDL_Rect rect = {static_cast<int>(center.x - radius / 2), static_cast<int>(center.y - radius / 2),
@@ -78,9 +77,26 @@ void DoubleBalls::apply_effect(Game *game) {
     game->double_balls();
 }
 
+void FasterBall::apply_effect(Game *game) {
+    game->increase_ball_speed();
+}
+
+void FasterBall::draw(SDL_Renderer *renderer) const {
+    Powerup::draw(renderer);
+
+    // set color to red
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
+    // draw a square
+    SDL_Rect rect = {static_cast<int>(center.x - radius / 2), static_cast<int>(center.y - radius / 2),
+                     static_cast<int>(radius), static_cast<int>(radius)};
+    SDL_RenderFillRect(renderer, &rect);
+}
+
+
 // powerup_manager class implementation
 void PowerupManager::spawn_random_powerup(float x, float y, float vx, float vy) {
-    static std::vector<std::string> powerupTypes = {"MultiBall", "BiggerPaddle", "DoubleBalls"};
+    static std::vector<std::string> powerupTypes = {"MultiBall", "BiggerPaddle", "DoubleBalls", "FasterBall"};
     std::string powerupType = powerupTypes[random_int(0, powerupTypes.size() - 1)];
     auto powerup = create_powerup(powerupType, x, y, vx, vy);
     if (powerup) {
@@ -105,6 +121,8 @@ std::unique_ptr<Powerup> PowerupManager::create_powerup(const std::string &name,
         return std::make_unique<BiggerPaddle>(x, y, vx, vy);
     } else if (name == "DoubleBalls") {
         return std::make_unique<DoubleBalls>(x, y, vx, vy);
+    } else if (name == "FasterBall") {
+        return std::make_unique<FasterBall>(x, y, vx, vy);
     }
     return nullptr;
 }
