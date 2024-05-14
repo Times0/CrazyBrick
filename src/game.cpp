@@ -140,10 +140,10 @@ void Game::update(float dt) {
     for (auto &ball: balls) {
         bricks.remove_if([this, &ball](const std::unique_ptr<Brick> &brick) {
             if (ball->handleSolidCollision(brick->get_points())) {
-                brick->decreaseCollisionCount();
-                if (brick->getCollisionCount() <= 0) {
+                brick->decrease_collision_count();
+                if (brick->get_collision_count() <= 0) {
                     if (random_int(0, 100) < PROBABILITY_POWERUP) {
-                        spawn_powerup(brick->getCenter(), ball->velocity);
+                        spawn_powerup(brick->get_center(), ball->velocity);
                     }
                     return true;
                 }

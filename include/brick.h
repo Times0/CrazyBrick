@@ -29,20 +29,22 @@ public:
         return polygon_points;
     }
 
-    Vector2 getCenter();
-    void decreaseCollisionCount();
-    int8_t getCollisionCount() const;
+    Vector2 get_center();
+
+    void decrease_collision_count();
+
+    int8_t get_collision_count() const;
 
 
 private:
-    int8_t collision_count = 1;
+    int8_t collisions_needed_to_destroy = 1;
 
     int8_t type;
     Polygon polygon_points;
     std::vector<SDL_Vertex> _vertices;
     std::vector<int32_t> _indices = {0, 1, 3, 1, 2, 3};
 
-    std::vector<SDL_Vertex> getVertices() const;
+    std::vector<SDL_Vertex> get_vertices() const;
 };
 
 
