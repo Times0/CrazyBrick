@@ -26,12 +26,13 @@ class PowerupManager;
 
 class Game {
 public:
-    Game(SDL_Window* window, SDL_Renderer* renderer);
+    Game(SDL_Window *window, SDL_Renderer *renderer);
+
     ~Game();
 
     void run();
 
-    void addBall(float x = GAME_WIDTH / 2, float y = GAME_HEIGHT / 2);
+    void addBall(float x = 0.f, float y = 0.f);
 
     void increasePaddleSize();
 
@@ -44,13 +45,13 @@ protected:
 
     void draw();
 
-    SDL_Window* window;
-    SDL_Renderer* renderer;
+    SDL_Window *window;
+    SDL_Renderer *renderer;
 
     float center_x = GAME_WIDTH / 2.;
     float center_y = GAME_HEIGHT / 2.;
 
-    bool running = true;
+    bool _running = true;
 
     // paddle
     Paddle paddle;

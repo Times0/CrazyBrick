@@ -10,7 +10,7 @@ public:
     AudioManager() {
         // Initialize SDL_mixer
         if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-            // Handle error
+            std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
         }
     }
 

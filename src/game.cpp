@@ -21,7 +21,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer) : window(window), rendere
     project_root_dir = std::filesystem::current_path() / "..";
     powerup_manager.bind(this);
     paddle = Paddle();
-    addBall(paddle.getPoints()[0].x, paddle.getPoints()[0].y - 20);
+    addBall(center_x, GAME_HEIGHT - 50);
     gameClock = Clock();
     fps_to_show = 0;
     font = loadFont("../assets/fonts/OpenSans-Regular.ttf", 24);
@@ -86,7 +86,7 @@ void Game::loadBricksFromFile(const std::string &name) {
 }
 
 void Game::run() {
-    while (running) {
+    while (_running) {
         float dt = gameClock.tick(FPS);
 
         /* Avoid moving the elements too much in case of lag or freeze */
@@ -106,7 +106,7 @@ void Game::handleEvents(float dt) {
             exit(0);
         } else if (event.type == SDL_KEYDOWN) {
             if (event.key.keysym.sym == SDLK_ESCAPE) {
-                running = false;
+                _running = false;
             }
         }
     }
@@ -117,6 +117,7 @@ void Game::update(float dt) {
     for (auto &ball: balls) {
         ball.update(dt);
     }
+    powerup_manager.update(dt);
 
     // Ball borders
     for (auto &ball: balls) {
@@ -149,7 +150,7 @@ void Game::update(float dt) {
         // remove bricks that are hit. Randomly spawn powerups
         bricks.remove_if([&ball, this](brick &brick) {
             if (ball.handleSolidCollision(brick.getPoints())) {
-                if (myRandomInt(0, 100) < PROBABILTY_POWERUP) {
+                if (myRandomInt(0, 100) < PROBABILITY_POWERUP) {
                     double x, y, vx, vy;
                     x = brick.getCenter().x;
                     y = brick.getCenter().y;
@@ -163,12 +164,8 @@ void Game::update(float dt) {
         });
     }
 
-    // update powerups
-    powerup_manager.update(dt);
-
     // Check for collisions with powerups
     powerup_manager.handlePaddleCollision(paddle.getPoints());
-
 }
 
 void Game::draw() {
@@ -211,14 +208,21 @@ void Game::drawFPS() {
 
 // Powerups
 void Game::addBall(float x, float y) {
-    float vx, vy;
     const float speed = 0.7f;
+    float vx, vy;
 
-    do {
-        vx = myRandomInt(-100, 100) / 100.0f;
-        vy = myRandomInt(-100, 100) / 100.0f;
-    } while (vx == 0.0f && vy == 0.0f); // Ensure that the ball has some initial velocity
+    if (x == 0 && y == 0) {
+        // spawn at the first ball's position
+        x = balls[0].center.x;
+        y = balls[0].center.y;
+    }
 
+    // Point to the center
+    vx = center_x - x;
+    vy = center_y - y;
+
+
+    // Normalize the velocity vector
     const float magnitude = std::sqrt(vx * vx + vy * vy);
     vx = vx / magnitude * speed;
     vy = vy / magnitude * speed;

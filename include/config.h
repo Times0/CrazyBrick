@@ -6,7 +6,7 @@
 constexpr int CENTER_X = GAME_WIDTH / 2;
 constexpr int CENTER_Y = GAME_HEIGHT / 2;
 
-#define BALL_RADIUS 10
+#define BALL_RADIUS 15
 #define BALL_SPEED 500
 
 #define PADDLE_WIDTH 200
@@ -18,8 +18,8 @@ constexpr int CENTER_Y = GAME_HEIGHT / 2;
 
 // PowerUp
 #define POWERUP_SPEED 100
-#define POWERUP_SIZE 10
-#define PROBABILTY_POWERUP 100
+#define POWERUP_SIZE 20
+#define PROBABILITY_POWERUP 10
 
 
 #define FPS 120
