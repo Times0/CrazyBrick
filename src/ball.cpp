@@ -1,19 +1,17 @@
 #include "../include/ball.h"
-#include "../include/config.h"
-#include "../include/utils.h"
 
-ball::ball(double x, double y, double vx, double vy) : center(x, y), velocity(vx, vy) {
+Ball::Ball(double x, double y, double vx, double vy) : center(x, y), velocity(vx, vy) {
     speed = BALL_SPEED;
     radius = BALL_RADIUS;
 }
 
-void ball::update(float dt) {
+void Ball::update(float dt) {
     center = {center.x + velocity.x * static_cast<float>(speed) * dt,
               center.y + velocity.y * static_cast<float>(speed) * dt};
 }
 
-void ball::draw(SDL_Renderer *renderer) const {
-    // draw white ball
+void Ball::draw(SDL_Renderer *renderer) const {
+    // draw white Ball
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
     for (int i = 0; i < 360; i++) {
@@ -23,7 +21,7 @@ void ball::draw(SDL_Renderer *renderer) const {
     }
 }
 
-bool ball::handleSolidCollision(const Polygon &polygon_points) {
+bool Ball::handleSolidCollision(const Polygon &polygon_points) {
     // This function is dependent on the order of the points in the polygon
     float min_ditance = 1000000;
     std::pair<Vector2, Vector2> mypair = {{0, 0},
@@ -49,7 +47,7 @@ bool ball::handleSolidCollision(const Polygon &polygon_points) {
     return false;
 }
 
-void ball::bounce(std::pair<Vector2, Vector2> mypair, float min_ditance) {
+void Ball::bounce(std::pair<Vector2, Vector2> mypair, float min_ditance) {
     const Vector2 &p1 = mypair.first;
     const Vector2 &p2 = mypair.second;
 
@@ -62,7 +60,7 @@ void ball::bounce(std::pair<Vector2, Vector2> mypair, float min_ditance) {
     normal_x /= length;
     normal_y /= length;
 
-    // Set the ball's position just outside
+    // Set the Ball's position just outside
     center = {center.x + normal_x * (radius - min_ditance),
               center.y + normal_y * (radius - min_ditance)};
 
@@ -70,5 +68,10 @@ void ball::bounce(std::pair<Vector2, Vector2> mypair, float min_ditance) {
 
     velocity = {velocity.x - 2 * dot_product * normal_x,
                 velocity.y - 2 * dot_product * normal_y};
+}
+
+bool Ball::isOutOfBounds() const {
+    return center.y - radius > GAME_HEIGHT || center.y + radius < 0 || center.x - radius > GAME_WIDTH ||
+           center.x + radius < 0;
 }
 

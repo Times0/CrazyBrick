@@ -18,6 +18,7 @@
 #include "brick.h"
 #include "clock.h"
 #include "utils.h"
+#include "ball.h"
 #include "powerup.h"
 #include "paddle.h"
 #include "audiomanager.h"
@@ -56,7 +57,8 @@ protected:
     // paddle
     Paddle paddle;
 
-    std::vector<ball> balls;
+    // balls
+    std::list<std::unique_ptr<Ball>> balls;
     std::list<brick> bricks;
     Clock gameClock;
     int fps_to_show = 0;

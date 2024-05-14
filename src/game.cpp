@@ -35,8 +35,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer) : window(window), rendere
     audio_manager.PlaySound("welcome");
 }
 
-Game::~Game() {
-}
+Game::~Game() = default;
 
 
 void Game::loadBricksFromFile(const std::string &name) {
@@ -115,32 +114,24 @@ void Game::handleEvents(float dt) {
 
 void Game::update(float dt) {
     for (auto &ball: balls) {
-        ball.update(dt);
+        ball->update(dt);
     }
     powerup_manager.update(dt);
 
-    // Ball borders
-    for (auto &ball: balls) {
-        if (ball.center.x - ball.radius < 0) {
-            ball.center = {static_cast<float>(ball.radius), ball.center.y};
-            ball.velocity.x = -ball.velocity.x;
+    balls.remove_if([this](const std::unique_ptr<Ball> &ball) {
+        if (ball->isOutOfBounds()) {
+            if (balls.size() == 1) {
+                _running = false;
+            }
+            return true;
         }
-        if (ball.center.x + ball.radius > GAME_WIDTH) {
-            ball.center = {static_cast<float>(GAME_WIDTH - ball.radius), ball.center.y};
-            ball.velocity.x = -ball.velocity.x;
-        }
-        if (ball.center.y - ball.radius < 0) {
-            ball.center = {ball.center.x, static_cast<float>(ball.radius)};
-            ball.velocity.y = -ball.velocity.y;
-        }
-        if (ball.center.y + ball.radius > GAME_HEIGHT) {
-            ball.center = {ball.center.x, static_cast<float>(GAME_HEIGHT - ball.radius)};
-            ball.velocity.y = -ball.velocity.y;
-        }
-    }
+        return false;
+    });
 
+
+    // Ball paddle
     for (auto &ball: balls) {
-        if (ball.handleSolidCollision(paddle.getPoints())) {
+        if (ball->handleSolidCollision(paddle.getPoints())) {
             audio_manager.PlaySound("ball_collide");
         }
     }
@@ -149,13 +140,13 @@ void Game::update(float dt) {
     for (auto &ball: balls) {
         // remove bricks that are hit. Randomly spawn powerups
         bricks.remove_if([&ball, this](brick &brick) {
-            if (ball.handleSolidCollision(brick.getPoints())) {
+            if (ball->handleSolidCollision(brick.getPoints())) {
                 if (myRandomInt(0, 100) < PROBABILITY_POWERUP) {
                     double x, y, vx, vy;
                     x = brick.getCenter().x;
                     y = brick.getCenter().y;
-                    vx = ball.velocity.x;
-                    vy = ball.velocity.y;
+                    vx = ball->velocity.x;
+                    vy = ball->velocity.y;
                     powerup_manager.spawnPowerup(x, y, vx, vy);
                 }
                 return true;
@@ -173,7 +164,7 @@ void Game::draw() {
     SDL_RenderClear(renderer);
 
     for (auto &ball: balls) {
-        ball.draw(renderer);
+        ball->draw(renderer);
     }
 
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
@@ -212,9 +203,9 @@ void Game::addBall(float x, float y) {
     float vx, vy;
 
     if (x == 0 && y == 0) {
-        // spawn at the first ball's position
-        x = balls[0].center.x;
-        y = balls[0].center.y;
+        // spawn at the first Ball's position
+        x = balls.front().get()->center.x;
+        y = balls.front().get()->center.y;
     }
 
     // Point to the center
@@ -227,7 +218,7 @@ void Game::addBall(float x, float y) {
     vx = vx / magnitude * speed;
     vy = vy / magnitude * speed;
 
-    balls.emplace_back(x, y, vx, vy);
+    balls.push_back(std::make_unique<Ball>(x, y, vx, vy));
 }
 
 void Game::increasePaddleSize() {

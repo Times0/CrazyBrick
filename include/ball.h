@@ -4,6 +4,8 @@
 #include <string>
 #include <cmath>
 #include "types.h"
+#include "utils.h"
+#include "config.h"
 
 #ifdef _WIN32
 
@@ -13,9 +15,9 @@
 #include <SDL2/SDL.h>
 #endif
 
-class ball {
+class Ball {
 public:
-    ball(double x, double y, double vx, double vy);
+    Ball(double x, double y, double vx, double vy);
 
     void update(float dt);
 
@@ -27,6 +29,8 @@ public:
     Vector2 velocity;
     uint32_t radius;
     uint32_t speed;
+
+    bool isOutOfBounds() const;
 
 private:
     void bounce(std::pair<Vector2, Vector2> mypair, float min_ditance);
