@@ -121,7 +121,13 @@ void Game::update(float dt) {
     balls.remove_if([this](const std::unique_ptr<Ball> &ball) {
         if (ball->isOutOfBounds()) {
             if (balls.size() == 1) {
-                _running = false;
+                lives--;
+                if (lives == 0) {
+                    _running = false;
+                } 
+                else {
+                    add_ball();
+                }
             }
             return true;
         }
@@ -184,6 +190,7 @@ void Game::draw() {
     paddle.draw(renderer);
 
     drawFPS();
+    drawLives();
     if (game_clock.getFrameCount() % (FPS / 4) == 0) {
         fps_to_show = game_clock.get_fps();
     }
@@ -193,6 +200,16 @@ void Game::draw() {
 
 void Game::drawFPS() {
     drawText(renderer, font.get(), "FPS: " + std::to_string(fps_to_show), 10, 10, {255, 255, 255});
+}
+
+void Game::drawLives() {
+    //we display the number of lives as a number of hearts
+    for (int i = 0; i < lives; i++) {
+        SDL_Texture* texture_heart = loadTexture((project_root_dir / "assets/images/heart.png").string(), renderer);
+        SDL_Rect rect = {GAME_WIDTH - 50 - i * 50, 10, 50, 50};
+        SDL_RenderCopy(renderer, texture_heart, nullptr, &rect);
+        //texture_heart is a texture that contains a heart image
+    }
 }
 
 // Powerups

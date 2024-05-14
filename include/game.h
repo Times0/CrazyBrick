@@ -8,6 +8,7 @@
 
 #else
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #endif
 
@@ -64,6 +65,7 @@ protected:
     std::list<std::unique_ptr<Brick>> bricks;
     Clock game_clock;
     int fps_to_show = 0;
+    int lives = 3;
 
     // font
     std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>> font;
@@ -74,6 +76,7 @@ protected:
     std::filesystem::path project_root_dir;
 
     void drawFPS();
+    void drawLives();
 
     void loadBricksFromFile(const std::string &filename);
 
