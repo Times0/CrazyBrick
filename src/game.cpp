@@ -126,7 +126,10 @@ void Game::update(float dt) {
                     _running = false;
                 } 
                 else {
-                    add_ball();
+                    //we add a ball at the paddle position but more in the center
+                    add_ball(CENTER_X, GAME_HEIGHT - 50);
+                    //we reset the paddle position
+                    paddle.reset();
                 }
             }
             return true;

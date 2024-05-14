@@ -50,7 +50,10 @@ public:
         speed = myclamp(speed, (float) -max_speed, (float) max_speed);
         rotation_angle += speed * dt * 0.1;
     }
-
+    void reset() {
+        rotation_angle = PI / 2;
+        speed = 0;
+    }
     const Polygon &getPoints() {
         return points;
     }
