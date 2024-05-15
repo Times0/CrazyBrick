@@ -116,3 +116,14 @@ void drawText(SDL_Renderer *renderer, TTF_Font *font, const std::string &text, i
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 }
+
+
+std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>>
+loadTexture(const std::string &file, SDL_Renderer *ren) {
+    SDL_Texture *texture = IMG_LoadTexture(ren, file.c_str());
+    if (texture == nullptr) {
+        std::cerr << "Error: Failed to load texture " << SDL_GetError() << std::endl;
+    }
+
+    return {texture, SDL_DestroyTexture};
+}

@@ -66,8 +66,10 @@ protected:
 
     // bricks
     std::list<std::unique_ptr<Brick>> bricks;
+
     Clock game_clock;
     int fps_to_show = 0;
+    int lives = 3;
 
     // font
     std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>> font;
@@ -82,6 +84,11 @@ protected:
     void loadBricksFromFile(const std::string &filename);
 
     void spawn_powerup(Vector2 pos, Vector2 vel);
+
+    void drawLives();
+
+    std::shared_ptr<SDL_Texture> texture_heart;
+
 
 };
 

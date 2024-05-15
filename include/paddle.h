@@ -73,6 +73,11 @@ public:
         }
     }
 
+    void reset_pos_speed() {
+        rotation_angle = PI / 2;
+        speed = 0;
+    }
+
     int width = PADDLE_WIDTH;
 private:
     int height = PADDLE_HEIGHT;

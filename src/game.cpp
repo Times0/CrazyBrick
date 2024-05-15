@@ -33,6 +33,8 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer) : window(window), rendere
     audio_manager.load_sound((project_root_dir / "assets/sound/ball_collide.wav").string(), "ball_collide");
 
     audio_manager.play_sound("welcome");
+
+    texture_heart = loadTexture((project_root_dir / "assets/images/heart.png").string(), renderer);
 }
 
 Game::~Game() = default;
@@ -121,7 +123,14 @@ void Game::update(float dt) {
     balls.remove_if([this](const std::unique_ptr<Ball> &ball) {
         if (ball->is_out_of_bounds()) {
             if (balls.size() == 1) {
-                _running = false;
+                lives--;
+                if (lives == 0) {
+                    _running = false;
+                } else {
+                    //we add a ball at the paddle position but more in the center
+                    add_ball(CENTER_X, GAME_HEIGHT - 50);
+                    paddle->reset_pos_speed();
+                }
             }
             return true;
         }
@@ -146,6 +155,9 @@ void Game::update(float dt) {
                         Vector2 pos = brick->get_center();
                         Vector2 vel = ball->velocity;
                         powerup_manager.spawn_random_powerup(pos.x, pos.y, vel.x, vel.y);
+                    }
+                    if (bricks.size() == 1) {
+                        _running = false;
                     }
                     return true;
                 }
@@ -188,11 +200,21 @@ void Game::draw() {
         fps_to_show = game_clock.get_fps();
     }
 
+    drawLives();
+
     SDL_RenderPresent(renderer);
 }
 
 void Game::draw_fps() {
     drawText(renderer, font.get(), "FPS: " + std::to_string(fps_to_show), 10, 10, {255, 255, 255});
+}
+
+void Game::drawLives() {
+    //we display the number of lives as a number of hearts
+    for (int i = 0; i < lives; i++) {
+        SDL_Rect rect = {GAME_WIDTH - 50 - i * 50, 10, 50, 50};
+        SDL_RenderCopy(renderer, texture_heart.get(), nullptr, &rect);
+    }
 }
 
 // Powerups

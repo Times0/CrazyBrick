@@ -17,7 +17,7 @@
 #include <memory>
 #include <SDL_ttf.h>
 #include <functional>
-#include "SDL_ttf.h"
+#include <SDL_image.h>
 
 
 int random_int(int min, int max);
@@ -40,3 +40,6 @@ bool handlePolygonCircleCollision(const Polygon &polygon_points, Vector2 center,
 std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>> loadFont(const std::string &path, int ptSize);
 
 void drawText(SDL_Renderer *renderer, TTF_Font *font, const std::string &text, int x, int y, SDL_Color color);
+
+std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>>
+loadTexture(const std::string &file, SDL_Renderer *ren);

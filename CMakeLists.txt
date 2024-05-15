@@ -17,8 +17,12 @@ find_package(SDL2_ttf REQUIRED)
 set(SDL2_MIXER_PATH "C:/SDL2_mixer-2.8.0/x86_64-w64-mingw32")
 find_package(SDL2_mixer REQUIRED)
 
+# SDL images
+set(SDL2_IMAGE_PATH "C:/SDL2_image-2.0.5/x86_64-w64-mingw32")
+find_package(SDL2_image REQUIRED)
+
 # Set the include directories
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_TTF_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_TTF_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR} include)
 
 # Set the source files
 set(SOURCES
@@ -53,7 +57,7 @@ set(HEADERS
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Link against SDL2 libraries
-target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARY} ${SDL2_MIXER_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARY} ${SDL2_MIXER_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 
 
 
