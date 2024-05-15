@@ -9,9 +9,9 @@ LevelSelection::LevelSelection() {
     TTF_Init();
     window = SDL_CreateWindow("Breakout", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, GAME_WIDTH, GAME_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    font = loadFont("../assets/fonts/OpenSans-Regular.ttf", 24);
-    title_font = loadFont("../assets/fonts/OmegaFlight3D-8M4n0.otf", 90);
-    subtitle_font = loadFont("../assets/fonts/OmegaFlight3D-8M4n0.otf", 50);
+    font = load_font("../assets/fonts/OpenSans-Regular.ttf", 24);
+    title_font = load_font("../assets/fonts/OmegaFlight3D-8M4n0.otf", 90);
+    subtitle_font = load_font("../assets/fonts/OmegaFlight3D-8M4n0.otf", 50);
 
 
 

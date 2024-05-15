@@ -37,9 +37,9 @@ double pointLineDistance(const std::pair<double, double> &point,
 bool handlePolygonCircleCollision(const Polygon &polygon_points, Vector2 center, float radius);
 
 
-std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>> loadFont(const std::string &path, int ptSize);
+std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>> load_font(const std::string &path, int ptSize);
 
 void drawText(SDL_Renderer *renderer, TTF_Font *font, const std::string &text, int x, int y, SDL_Color color);
 
 std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>>
-loadTexture(const std::string &file, SDL_Renderer *ren);
+load_texture(const std::string &file, SDL_Renderer *ren);

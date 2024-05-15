@@ -97,7 +97,7 @@ bool handlePolygonCircleCollision(const Polygon &polygon_points, Vector2 center,
 }
 
 
-std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>> loadFont(const std::string &path, int ptSize) {
+std::unique_ptr<TTF_Font, std::function<void(TTF_Font *)>> load_font(const std::string &path, int ptSize) {
     TTF_Font *font = TTF_OpenFont(path.c_str(), ptSize);
     if (font == nullptr) {
         std::cerr << "Error: Failed to load font " << TTF_GetError() << std::endl;
@@ -119,7 +119,7 @@ void drawText(SDL_Renderer *renderer, TTF_Font *font, const std::string &text, i
 
 
 std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>>
-loadTexture(const std::string &file, SDL_Renderer *ren) {
+load_texture(const std::string &file, SDL_Renderer *ren) {
     SDL_Texture *texture = IMG_LoadTexture(ren, file.c_str());
     if (texture == nullptr) {
         std::cerr << "Error: Failed to load texture " << SDL_GetError() << std::endl;

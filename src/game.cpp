@@ -24,17 +24,22 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer) : window(window), rendere
     add_ball(center_x, GAME_HEIGHT - 50);
     game_clock = Clock();
     fps_to_show = 0;
-    font = loadFont("../assets/fonts/OpenSans-Regular.ttf", 24);
+    font = load_font("../assets/fonts/OpenSans-Regular.ttf", 24);
     if (font == nullptr) {
         std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
     }
 
-    audio_manager.load_sound((project_root_dir / "assets/sound/welcome.wav").string(), "welcome");
-    audio_manager.load_sound((project_root_dir / "assets/sound/ball_collide.wav").string(), "ball_collide");
+    audio_manager.load_sound((project_root_dir / "assets/sound/bonus1.wav"));
+    audio_manager.load_sound((project_root_dir / "assets/sound/brick_collision.wav"));
+    audio_manager.load_sound((project_root_dir / "assets/sound/bonus2.wav"));
+    audio_manager.load_sound((project_root_dir / "assets/sound/welcome.wav"));
+    audio_manager.load_sound((project_root_dir / "assets/sound/win.wav"));
+    audio_manager.load_sound((project_root_dir / "assets/sound/start.wav"));
+    audio_manager.load_sound((project_root_dir / "assets/sound/paddle_ball.wav"));
 
-    audio_manager.play_sound("welcome");
+    audio_manager.play_sound("start");
 
-    texture_heart = loadTexture((project_root_dir / "assets/images/heart.png").string(), renderer);
+    texture_heart = load_texture((project_root_dir / "assets/images/heart.png").string(), renderer);
 }
 
 Game::~Game() = default;
@@ -156,8 +161,11 @@ void Game::update(float dt) {
                         Vector2 vel = ball->velocity;
                         powerup_manager.spawn_random_powerup(pos.x, pos.y, vel.x, vel.y);
                     }
+                    audio_manager.play_sound("brick_collision");
+
                     if (bricks.size() == 1) {
                         _running = false;
+                        audio_manager.play_sound("win");
                     }
                     return true;
                 }
@@ -165,6 +173,7 @@ void Game::update(float dt) {
             return false;
         });
     }
+
     // Check for collisions with powerups
     powerup_manager.handle_collision_with_paddle(paddle->get_points());
 }
