@@ -103,8 +103,8 @@ void LevelSelection::draw() {
         y += level_rect_height + 10;
     }
 
-    // Copyrright text
-    drawText(renderer, font.get(), "2024 Dorian", 10, GAME_HEIGHT - 30, SDL_Color{255, 255, 255});
+    // Copyright text
+    drawText(renderer, font.get(), "2024 Dorian & Mathis", 10, GAME_HEIGHT - 30, SDL_Color{255, 255, 255});
 
 
     SDL_RenderPresent(renderer);

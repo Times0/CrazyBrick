@@ -33,6 +33,8 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer) : window(window), rendere
     audio_manager.load_sound((project_root_dir / "assets/sound/ball_collide.wav").string(), "ball_collide");
 
     audio_manager.play_sound("welcome");
+    texture_heart = loadTexture((project_root_dir / "assets/images/heart.png").string(), renderer);
+
 }
 
 Game::~Game() = default;
@@ -208,10 +210,8 @@ void Game::drawFPS() {
 void Game::drawLives() {
     //we display the number of lives as a number of hearts
     for (int i = 0; i < lives; i++) {
-        SDL_Texture* texture_heart = loadTexture((project_root_dir / "assets/images/heart.png").string(), renderer);
         SDL_Rect rect = {GAME_WIDTH - 50 - i * 50, 10, 50, 50};
-        SDL_RenderCopy(renderer, texture_heart, nullptr, &rect);
-        //texture_heart is a texture that contains a heart image
+        SDL_RenderCopy(renderer, texture_heart.get(), nullptr, &rect);
     }
 }
 

@@ -17,16 +17,13 @@ find_package(SDL2_ttf REQUIRED)
 set(SDL2_MIXER_PATH "C:/SDL2_mixer-2.8.0/x86_64-w64-mingw32")
 find_package(SDL2_mixer REQUIRED)
 
-find_path(SDL2_IMAGE_INCLUDE_DIR SDL_image.h)
-find_library(SDL2_IMAGE_LIBRARY NAMES SDL2_image)
-
 # SDL image
-set(SDL2_IMAGE_PATH "/usr/local/lib")
+set(SDL2_IMAGE_PATH "C:/SDL2_image-2.8.2/x86_64-w64-mingw32")
 find_package(SDL2_image REQUIRED)
 
 
 # Set the include directories
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_TTF_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_TTF_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR})
 
 # Set the source files
 set(SOURCES

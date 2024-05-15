@@ -1,4 +1,4 @@
-set(SDL2_IMAGE_PATH "/usr/local/lib")  # Set this to the path where SDL2_image is installed
+set(SDL2_IMAGE_PATH "C:/SDL2_image-2.8.2/x86_64-w64-mingw32")  # Set this to the path where SDL2_image is installed
 
 find_path(SDL2_IMAGE_INCLUDE_DIR SDL_image.h
           HINTS

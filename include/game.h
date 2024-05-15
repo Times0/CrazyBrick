@@ -81,6 +81,8 @@ protected:
     void loadBricksFromFile(const std::string &filename);
 
     void spawn_powerup(Vector2 pos, Vector2 vel);
+
+    std::shared_ptr<SDL_Texture> texture_heart;
 };
 
 #endif // CRAZYBRICK_GAME_H

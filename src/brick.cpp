@@ -36,19 +36,19 @@ std::vector<SDL_Vertex> Brick::get_vertices() const {
     SDL_Color color;
     switch (collisions_needed_to_destroy) {
         case 0:
-            color = {255, 255, 255, 255}; // White
+            color = {255, 228, 196, 255}; // Bisque
             break;
         case 1:
-            color = {255, 228, 225, 255}; // Misty Rose
+            color = {255, 182, 193, 255}; // Light Pink
             break;
         case 2:
-            color = {240, 255, 240, 255}; // Honeydew
+            color = {216, 191, 216, 255}; // Thistle
             break;
         case 3:
-            color = {175, 238, 238, 255}; // Pale Turquoise
+            color = {176, 224, 230, 255}; // Powder Blue
             break;
         case 4:
-            color = {255, 255, 224, 255}; // Light Yellow
+            color = {255, 255, 0, 255}; // Pure Yellow
             break;
         default:
             color = {255, 255, 255, 255}; // White
